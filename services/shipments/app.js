@@ -1,5 +1,15 @@
-// Import module yang diperlukan
+const express = require('express');
 const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const PORT = 3002;
+
+const app = express();
+app.use(bodyParser.json());
+
+// Koneksi MongoDB
+mongoose.connect('mongodb://localhost:27017/logistics')
+    .then(() => console.log('Connected to MongoDB'))
+    .catch((error) => console.error('Error connecting to MongoDB:', error));
 
 // Skema untuk tabel Shipments
 const shipmentSchema = new mongoose.Schema({

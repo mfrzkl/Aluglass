@@ -8,16 +8,9 @@ const app = express();
 app.use(bodyParser.json());
 
 // Koneksi ke MongoDB
-mongoose.connect('mongodb://localhost:27017/inventory', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-});
-
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'Koneksi MongoDB gagal:'));
-db.once('open', () => {
-    console.log('Terkoneksi ke MongoDB');
-});
+mongoose.connect('mongodb://localhost:27017/logistics')
+    .then(() => console.log('Connected to MongoDB'))
+    .catch((error) => console.error('Error connecting to MongoDB:', error));
 
 // Skema untuk Inventaris Produk
 const inventorySchema = new mongoose.Schema({
@@ -91,7 +84,7 @@ app.delete('/inventories/:id', async (req, res) => {
 });
 
 // Menjalankan server
-const PORT = 3001;
+const PORT = 3003;
 app.listen(PORT, () => {
     console.log(`Server inventaris berjalan di http://localhost:${PORT}`);
 });

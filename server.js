@@ -7,10 +7,11 @@ const bodyParser = require('body-parser');
 const rateLimit = require('express-rate-limit');
 const httpProxy = require('http-proxy');
 const authRoutes = require('./routes/auth');
+const authenticateJWT = require('./routes/auth')
 const { jwtSecret, jwtExpiresIn, port } = require('./config');
 
 const app = express();
-const apiProxy = httpProxy.createProxyServer();
+// const apiProxy = httpProxy.createProxyServer();
 
 // URL layanan backend
 const salesOrderService = 'http://localhost:3001';
@@ -30,6 +31,10 @@ const apiLimiter = rateLimit({
     legacyHeaders: false, // Menonaktifkan X-RateLimit-* header
 });
 
+const {
+    createProxyMiddleware
+} = require('http-proxy-middleware')
+
 // Terapkan rate limit pada semua endpoint API
 app.use('/api', apiLimiter);
 
@@ -40,22 +45,22 @@ app.use((req, res, next) => {
 });
 
 // Middleware untuk verifikasi JWT
-const authenticateJWT = (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    if (authHeader) {
-        const token = authHeader.split(' ')[1];
+// const authenticateJWT = (req, res, next) => {
+//     const authHeader = req.headers.authorization;
+//     if (authHeader) {
+//         const token = authHeader.split(' ')[1];
 
-        jwt.verify(token, jwtSecret, (err, user) => {
-            if (err) {
-                return res.status(403).json({ message: 'Forbidden' });
-            }
-            req.user = user;
-            next();
-        });
-    } else {
-        res.status(401).json({ message: 'Unauthorized' });
-    }
-};
+//         jwt.verify(token, jwtSecret, (err, user) => {
+//             if (err) {
+//                 return res.status(403).json({ message: 'Forbidden' });
+//             }
+//             req.user = user;
+//             next();
+//         });
+//     } else {
+//         res.status(401).json({ message: 'Unauthorized' });
+//     }
+// };
 
 // Middleware untuk otorisasi berdasarkan role
 const authorizeRoles = (...roles) => {
@@ -72,7 +77,9 @@ app.use('/api/auth', authRoutes);
 
 // Routing untuk Inventory (hanya Staff Gudang)
 app.use('/api/inventory', authenticateJWT, authorizeRoles('Staff'), (req, res) => {
-    apiProxy.web(req, res, { target: inventoryService }, (error) => {
+    createProxyMiddleware(req, res, { 
+        target: inventoryService 
+    }, (error) => {
         console.error(`Error proxying to Inventory Service: ${error.message}`);
         res.status(500).send('Error proxying to Inventory Service');
     });
@@ -80,7 +87,9 @@ app.use('/api/inventory', authenticateJWT, authorizeRoles('Staff'), (req, res) =
 
 // Routing untuk Sales Order (hanya Sales)
 app.use('/sales-orders', authenticateJWT, authorizeRoles('Sales'), (req, res) => {
-    apiProxy.web(req, res, { target: salesOrderService }, (error) => {
+    apiProxy.web(req, res, { 
+        target: salesOrderService 
+    }, (error) => {
         console.error(`Error proxying to Sales Order Service: ${error.message}`);
         res.status(500).send('Error proxying to Sales Order Service');
     });
@@ -88,7 +97,8 @@ app.use('/sales-orders', authenticateJWT, authorizeRoles('Sales'), (req, res) =>
 
 // Routing untuk Delivery Order (Operasional dan Sales)
 app.use('/delivery-orders', authenticateJWT, authorizeRoles('ops', 'Sales'), (req, res) => {
-    apiProxy.web(req, res, { target: deliveryOrderService }, (error) => {
+    apiProxy.web(req, res, { target: deliveryOrderService 
+    }, (error) => {
         console.error(`Error proxying to Delivery Order Service: ${error.message}`);
         res.status(500).send('Error proxying to Delivery Order Service');
     });
