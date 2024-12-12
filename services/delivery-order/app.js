@@ -1,15 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-
+const PORT = 3003;
 const app = express();
 app.use(bodyParser.json());
 
 // Koneksi MongoDB
-mongoose.connect('mongodb://localhost:27017/logistics', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-});
+mongoose.connect('mongodb://localhost:27017/logistics')
+    .then(() => console.log('Connected to MongoDB'))
+    .catch((error) => console.error('Error connecting to MongoDB:', error));
 
 const deliveryOrderSchema = new mongoose.Schema({
     nomor_pengiriman: { type: String, required: true },
