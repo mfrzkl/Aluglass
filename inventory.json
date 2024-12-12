@@ -1,0 +1,56 @@
+[
+    {
+        "nama_produk": "Kaca Tempered",
+        "jenis": "kaca",
+        "stok": 100,
+        "harga": 250000,
+        "warna": "bening",
+        "ketebalan": 10,
+        "dimensi": "100x200 cm"
+    },
+    {
+        "nama_produk": "Kaca Laminated",
+        "jenis": "kaca",
+        "stok": 50,
+        "harga": 300000,
+        "warna": "hijau",
+        "ketebalan": 12,
+        "dimensi": "150x250 cm"
+    },
+    {
+        "nama_produk": "Kaca Buram",
+        "jenis": "kaca",
+        "stok": 75,
+        "harga": 200000,
+        "warna": "putih susu",
+        "ketebalan": 8,
+        "dimensi": "120x240 cm"
+    },
+    {
+        "nama_produk": "Profil Aluminium U-Shape",
+        "jenis": "aluminium",
+        "stok": 150,
+        "harga": 50000,
+        "warna": "silver",
+        "ketebalan": 3,
+        "dimensi": "40x40x2000 mm"
+    },
+    {
+        "nama_produk": "Frame Aluminium",
+        "jenis": "aluminium",
+        "stok": 120,
+        "harga": 75000,
+        "warna": "hitam",
+        "ketebalan": 4,
+        "dimensi": "50x50x2500 mm"
+    },
+    {
+        "nama_produk": "Profil Aluminium L-Shape",
+        "jenis": "aluminium",
+        "stok": 200,
+        "harga": 60000,
+        "warna": "silver",
+        "ketebalan": 2,
+        "dimensi": "30x30x3000 mm"
+    }
+]

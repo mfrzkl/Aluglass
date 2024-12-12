@@ -1,0 +1,54 @@
+[
+    {
+        "nomor_pengiriman": "SHIP001",
+        "sales_order_id": "63f0cd9eebd7c0f5a477e4a1",
+        "delivery_order_id": "63f0ce3eebd7c0f5a477e4a5",
+        "produk": [
+            {
+                "nama_produk": "Kaca Tempered",
+                "warna": "Bening",
+                "ketebalan": 8,
+                "dimensi": "200x150 cm",
+                "jumlah": 20,
+                "status": "in transit"
+            },
+            {
+                "nama_produk": "Kaca Laminated",
+                "warna": "Hijau",
+                "ketebalan": 10,
+                "dimensi": "150x100 cm",
+                "jumlah": 15,
+                "status": "in transit"
+            }
+        ],
+        "tanggal_pengiriman": "2023-12-10",
+        "tanggal_diterima": null,
+        "status": "in transit"
+    },
+    {
+        "nomor_pengiriman": "SHIP002",
+        "sales_order_id": "63f0ce3eebd7c0f5a477e4a2",
+        "delivery_order_id": "63f0ce3eebd7c0f5a477e4a6",
+        "produk": [
+            {
+                "nama_produk": "Aluminium Frame",
+                "warna": "Silver",
+                "ketebalan": 2,
+                "dimensi": "300x100 cm",
+                "jumlah": 10,
+                "status": "delivered"
+            },
+            {
+                "nama_produk": "Aluminium Sheet",
+                "warna": "Hitam",
+                "ketebalan": 1.5,
+                "dimensi": "200x200 cm",
+                "jumlah": 8,
+                "status": "delivered"
+            }
+        ],
+        "tanggal_pengiriman": "2023-12-08",
+        "tanggal_diterima": "2023-12-11",
+        "status": "delivered"
+    }
+]
