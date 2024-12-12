@@ -29,7 +29,7 @@ const inventorySchema = new mongoose.Schema({
 const Inventory = mongoose.model('Inventory', inventorySchema);
 
 // Endpoint untuk Inventory
-app.get('/inventories', async (req, res) => {
+app.get('/api/inventory', async (req, res) => {
     try {
         const inventories = await Inventory.find();
         res.json(inventories);
@@ -38,7 +38,7 @@ app.get('/inventories', async (req, res) => {
     }
 });
 
-app.post('/inventories', async (req, res) => {
+app.post('/api/inventory', async (req, res) => {
     try {
         const { nama_produk, kategori, warna, ketebalan, dimensi, stok, harga_satuan } = req.body;
 
@@ -59,7 +59,7 @@ app.post('/inventories', async (req, res) => {
     }
 });
 
-app.put('/inventories/:id', async (req, res) => {
+app.put('/api/inventory/:id', async (req, res) => {
     try {
         const updatedInventory = await Inventory.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!updatedInventory) {
@@ -71,7 +71,7 @@ app.put('/inventories/:id', async (req, res) => {
     }
 });
 
-app.delete('/inventories/:id', async (req, res) => {
+app.delete('/api/inventory/:id', async (req, res) => {
     try {
         const deletedInventory = await Inventory.findByIdAndDelete(req.params.id);
         if (!deletedInventory) {
