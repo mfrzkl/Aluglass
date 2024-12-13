@@ -65,7 +65,7 @@ app.use((req, res, next) => {
 // Middleware untuk otorisasi berdasarkan role
 const authorizeRoles = (...roles) => {
     return (req, res, next) => {
-        if (!roles.includes(req.user.role)) {
+        if (!roles.includes(req.users.role)) {
             return res.status(403).json({ message: 'Forbidden: Insufficient role' });
         }
         next();

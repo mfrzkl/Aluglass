@@ -2,17 +2,16 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { jwtSecret, jwtExpiresIn } = require('../config');
-const { findByUsername, findById } =
-require('../models/user');
-const fs = require('fs-extra')
+const { findByUsername } = require('../models/user');
 
 const router = express.Router();
 
-// Fungsi untuk membuat token JWT
+// Fungsi untuk membuat token JWT dengan role
 const generateToken = (user) => {
- return jwt.sign({ id: user.id }, jwtSecret, { expiresIn: jwtExpiresIn });
+    return jwt.sign({ id: user.id, role: user.role }, jwtSecret, { expiresIn: jwtExpiresIn });
 };
 
+// Halaman login sederhana
 router.get('/login', (req, res) => {
     res.send(`
         <html>
@@ -33,58 +32,33 @@ router.get('/login', (req, res) => {
     `);
 });
 
-// POST /api/auth/login - Handle login logic
+// Endpoint untuk login
 router.post('/login', (req, res) => {
-    const { username, password } = req.body;
+    const router = express.Router();
 
-    const user = findByUsername(username);
-    if (!user) {
-        return res.status(400).json({ message: 'User not found' });
-    }
-
-    const isPasswordValid = bcrypt.compareSync(password, user.password);
-    if (!isPasswordValid) {
-        return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
-    const token = generateToken(user);
+    const generateToken = (user) => {
+        return jwt.sign({ id: user.id, role: user.role }, jwtSecret, { expiresIn: jwtExpiresIn });
+    };
     
-    return res.json({ message: 'Login successful', token });
+    router.post('/login', (req, res) => {
+        const { username, password } = req.body;
+        const user = findByUsername(username);
+    
+        if (!user) {
+            return res.status(400).json({ message: 'User not found' });
+        }
+    
+        const isPasswordValid = bcrypt.compareSync(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+    
+        const token = generateToken(user);
+        res.json({ message: 'Login successful', token });
+    });
+    
+    module.exports = router;
 });
-
-// Login dan menghasilkan token JWT serta menyimpan ke db.json
-// router.post('/login', async (req, res) => {
-//     const { username, password } = req.body;
-//     const user = findByUsername(username);
-
-//     if (!user) {
-//         return res.status(400).json({ message: 'User not found' });
-//     }
-
-//     const isPasswordValid = bcrypt.compareSync(password, user.password);
-//     if (!isPasswordValid) {
-//         return res.status(401).json({ message: 'Invalid credentials' });
-//     }
-
-//     const token = generateToken(user);
-
-//     // Save user data to db.json
-//     const userData = {
-//         id: user.id,
-//         username: user.username
-//     };
-
-//     try {
-//         const data = await fs.readJson('db.json').catch(() => ({ users: [] }));
-//         data.users.push(userData); // Add new user to the array
-//         await fs.writeJson('db.json', data); // Write data back to db.json
-
-//         return res.json({ message: 'Login successful', token });
-//     } catch (error) {
-//         console.error('Error writing to db.json:', error);
-//         return res.status(500).json({ message: 'Error saving user data' });
-//     }
-// });
 
 // Middleware untuk memverifikasi JWT
 const authenticateJWT = (req, res, next) => {
@@ -98,7 +72,6 @@ const authenticateJWT = (req, res, next) => {
                 return res.status(403).json({ message: 'Forbidden: Invalid token' });
             }
 
-            // Menyisipkan user ke dalam req
             req.user = user;
             next();
         });
@@ -109,8 +82,8 @@ const authenticateJWT = (req, res, next) => {
 
 // Rute yang dilindungi
 router.get('/protected', authenticateJWT, (req, res) => {
-    res.json({ message: 'This is protected data', user:
-    req.user });
-    });
+    res.json({ message: 'This is protected data', user: req.user });
+});
 
 module.exports = router;
+// module.exports = { router, authenticateJWT };
