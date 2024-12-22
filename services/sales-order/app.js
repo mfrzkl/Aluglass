@@ -1,88 +1,72 @@
 const express = require('express');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-
 const app = express();
-app.use(bodyParser.json());
+const db = require('../../db/connections');
 
-// Koneksi MongoDB
-mongoose.connect('mongodb://localhost:27017/logistics')
-    .then(() => console.log('Connected to MongoDB'))
-    .catch((error) => console.error('Error connecting to MongoDB:', error));
-
-const salesOrderSchema = new mongoose.Schema({
-    nomor_pesanan: { type: String, required: true },
-    tanggal_pesanan: { type: Date, required: true },
-    pelanggan: { type: String, required: true },
-    status: { type: String, enum: ['pending', 'completed', 'canceled'], default: 'pending' },
-    produk: [
-        {
-            nama_produk: { type: String, required: true },
-            jumlah: { type: Number, required: true },
-            harga_satuan: { type: Number, required: true },
-        },
-    ],
-    total_harga: { type: Number, required: true },
-});
-
-const SalesOrder = mongoose.model('SalesOrder', salesOrderSchema);
-
-// Endpoint Sales Order
-app.get('/sales-orders', async (req, res) => {
+app.get('/', async (req, res) => {
     try {
-        const orders = await SalesOrder.find();
-        res.json(orders);
-    } catch (error) {
-        res.status(500).json({ message: 'Error membaca data Sales Order' });
+        const [results] = await db.query('SELECT * FROM sales_order');
+        res.json(results);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
-app.post('/sales-orders', async (req, res) => {
-    try {
-        const { nomor_pesanan, tanggal_pesanan, pelanggan, produk } = req.body;
-        const total_harga = produk.reduce((total, item) => total + item.jumlah * item.harga_satuan, 0);
-
-        const newOrder = new SalesOrder({
-            nomor_pesanan,
-            tanggal_pesanan,
-            pelanggan,
-            produk,
-            total_harga,
-        });
-
-        await newOrder.save();
-        res.status(201).json(newOrder);
-    } catch (error) {
-        res.status(500).json({ message: 'Gagal menambahkan Sales Order' });
-    }
-});
-
-app.put('/sales-orders/:id', async (req, res) => {
-    try {
-        const updatedOrder = await SalesOrder.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedOrder) {
-            return res.status(404).json({ message: 'Sales Order tidak ditemukan' });
+app.post('/', (req, res) => {
+    const { sales_order_no, tanggal_pesanan, pelanggan, status, produk, total_harga } = req.body;
+    db.query(
+        'INSERT INTO sales_order (sales_order_no, tanggal_pesanan, pelanggan, status, produk, total_harga) VALUES (?, ?, ?, ?, ?, ?)',
+        [sales_order_no, tanggal_pesanan, pelanggan, status, JSON.stringify(produk), total_harga],
+        (err, results) => {
+            if (err) return res.status(500).json(err);
+            res.json({ message: 'Sales Order dibuat', id: results.insertId });
         }
-        res.json(updatedOrder);
-    } catch (error) {
-        res.status(500).json({ message: 'Gagal memperbarui Sales Order' });
-    }
+    );
 });
 
-app.delete('/sales-orders/:id', async (req, res) => {
-    try {
-        const deletedOrder = await SalesOrder.findByIdAndDelete(req.params.id);
-        if (!deletedOrder) {
-            return res.status(404).json({ message: 'Sales Order tidak ditemukan' });
+app.put('/:sales_order_no', (req, res) => {
+    const { sales_order_no } = req.params;
+    const { status } = req.body;
+
+    // Validasi input untuk memastikan hanya 'status' yang diterima
+    if (!Object.keys(req.body).includes('status') || Object.keys(req.body).length !== 1) {
+        return res.status(400).json({ message: 'Hanya kolom status yang dapat diubah!' });
+    }
+
+    // Validasi nilai status (opsional, jika ada batasan nilai untuk status)
+    if (typeof status !== 'string' || status.trim() === '') {
+        return res.status(400).json({ message: 'Status harus berupa string yang valid!' });
+    }
+
+    db.query(
+        'UPDATE sales_order SET status = ? WHERE sales_order_no = ?',
+        [status, sales_order_no],
+        (err, results) => {
+            if (err) return res.status(500).json(err);
+
+            if (results.affectedRows === 0) {
+                return res.status(404).json({ message: 'Sales Order tidak ditemukan!' });
+            }
+
+            res.json({ message: 'Status berhasil diperbarui', affectedRows: results.affectedRows });
         }
-        res.json({ message: 'Sales Order berhasil dihapus' });
-    } catch (error) {
-        res.status(500).json({ message: 'Gagal menghapus Sales Order' });
-    }
+    );
 });
 
-// Menjalankan server Sales Order
-const PORT = 3001;
+app.delete('/:sales_order_no', (req, res) => {
+    const { sales_order_no } = req.params;
+    db.query('DELETE FROM sales_order WHERE sales_order_no = ?', [sales_order_no], (err, results) => {
+        if (err) return res.status(500).json(err);
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ message: 'Sales Order tidak ditemukan!' });
+        }
+
+        res.json({ message: 'Sales Order dihapus!' });
+    });
+});
+
+// Jalankan server
+const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
-    console.log(`Sales Order Service berjalan di http://localhost:${PORT}`);
+    console.log(`Inventory service running on port ${PORT}`);
 });

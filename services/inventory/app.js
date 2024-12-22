@@ -1,90 +1,78 @@
-// Import module yang diperlukan
 const express = require('express');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const db = require('./connections');
 
-// Inisialisasi aplikasi
+dotenv.config();
+
 const app = express();
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(cors({
+    origin: 'http://localhost:3000', // URL frontend Anda
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Metode yang diizinkan
+}));
 
-// Koneksi ke MongoDB
-mongoose.connect('mongodb://localhost:27017/logistics')
-    .then(() => console.log('Connected to MongoDB'))
-    .catch((error) => console.error('Error connecting to MongoDB:', error));
 
-// Skema untuk Inventaris Produk
-const inventorySchema = new mongoose.Schema({
-    nama_produk: { type: String, required: true },
-    kategori: { type: String, enum: ['kaca', 'alumunium'], required: true },
-    warna: { type: String, required: true },
-    ketebalan: { type: Number, required: true }, // dalam mm
-    dimensi: { 
-        panjang: { type: Number, required: true }, // dalam cm
-        lebar: { type: Number, required: true },   // dalam cm
-    },
-    stok: { type: Number, required: true },
-    harga_satuan: { type: Number, required: true },
-});
-
-const Inventory = mongoose.model('Inventory', inventorySchema);
-
-// Endpoint untuk Inventory
-app.get('/api/inventory', async (req, res) => {
+// Inventory Endpoints
+app.get('/', async (req, res) => {
     try {
-        const inventories = await Inventory.find();
-        res.json(inventories);
-    } catch (error) {
-        res.status(500).json({ message: 'Error membaca data inventaris' });
+        const [results] = await db.query('SELECT * FROM inventory');
+        res.json(results);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
-app.post('/api/inventory', async (req, res) => {
-    try {
-        const { nama_produk, kategori, warna, ketebalan, dimensi, stok, harga_satuan } = req.body;
-
-        const newInventory = new Inventory({
-            nama_produk,
-            kategori,
-            warna,
-            ketebalan,
-            dimensi,
-            stok,
-            harga_satuan,
-        });
-
-        await newInventory.save();
-        res.status(201).json(newInventory);
-    } catch (error) {
-        res.status(500).json({ message: 'Gagal menambahkan inventaris' });
-    }
-});
-
-app.put('/api/inventory/:id', async (req, res) => {
-    try {
-        const updatedInventory = await Inventory.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedInventory) {
-            return res.status(404).json({ message: 'Inventaris tidak ditemukan' });
+app.post('/', (req, res) => {
+    const { kode_produk, nama_produk, kategori, warna, ketebalan, dimensi, stok, harga_satuan } = req.body;
+    db.query(
+        'INSERT INTO inventory (kode_produk, nama_produk, kategori, warna, ketebalan, dimensi, stok, harga_satuan) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [kode_produk, nama_produk, kategori, warna, ketebalan, JSON.stringify(dimensi), stok, harga_satuan],
+        (err, results) => {
+            if (err) return res.status(500).json(err);
+            res.json({ message: 'Inventory item created', id: results.insertId });
         }
-        res.json(updatedInventory);
-    } catch (error) {
-        res.status(500).json({ message: 'Gagal memperbarui inventaris' });
-    }
+    );
 });
 
-app.delete('/api/inventory/:id', async (req, res) => {
-    try {
-        const deletedInventory = await Inventory.findByIdAndDelete(req.params.id);
-        if (!deletedInventory) {
-            return res.status(404).json({ message: 'Inventaris tidak ditemukan' });
+app.put('/:kode_produk', (req, res) => {
+    const { kode_produk } = req.params;
+    const { stok } = req.body;
+
+    // Validasi input untuk memastikan hanya 'stok' yang diterima
+    if (!Object.keys(req.body).includes('stok') || Object.keys(req.body).length !== 1) {
+        return res.status(400).json({ message: 'Hanya kolom stok yang dapat diubah!' });
+    }
+
+    if (typeof stok !== 'number' || stok < 0) {
+        return res.status(400).json({ message: 'Stok harus berupa angka positif!' });
+    }
+
+    db.query(
+        'UPDATE inventory SET stok = ? WHERE kode_produk = ?',
+        [stok, kode_produk],
+        (err, results) => {
+            if (err) return res.status(500).json(err);
+
+            if (results.affectedRows === 0) {
+                return res.status(404).json({ message: 'Produk tidak ditemukan!' });
+            }
+
+            res.json({ message: 'Stok berhasil diperbarui!' });
         }
-        res.json({ message: 'Inventaris berhasil dihapus' });
-    } catch (error) {
-        res.status(500).json({ message: 'Gagal menghapus inventaris' });
-    }
+    );
 });
 
-// Menjalankan server
-const PORT = 3003;
+app.delete('/:kode_produk', (req, res) => {
+    const { kode_produk } = req.params;
+    db.query('DELETE FROM inventory WHERE kode_produk = ?', [kode_produk], (err, results) => {
+        if (err) return res.status(500).json(err);
+        res.json({ message: 'Inventory item deleted' });
+    });
+});
+
+// Jalankan server
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-    console.log(`Server inventaris berjalan di http://localhost:${PORT}`);
+    console.log(`Inventory service running on port ${PORT}`);
 });
