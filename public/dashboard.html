@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #4285f4;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        .container {
+            padding: 20px;
+        }
+        .service-card {
+            background: white;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .service-card h3 {
+            margin: 0;
+        }
+        .service-card p {
+            margin: 5px 0 15px;
+            color: #555;
+        }
+        .service-card button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .service-card button:hover {
+            background-color: #45a049;
+        }
+        #logoutButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #logoutButton:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Dashboard</h1>
+        <p>Selamat datang di sistem mikroservis</p>
+    </header>
+    <div class="container">
+        <div class="service-card">
+            <h3>Inventory Management</h3>
+            <p>Mengelola inventory</p>
+            <button onclick="accessService('/inventory')"></a>Akses</button>
+        </div>
+        <div class="service-card">
+            <h3>Sales Order</h3>
+            <p>Mengelola penawaran dari sales</p>
+            <button onclick="accessService('/sales-order')">Akses</button>
+        </div>
+        <div class="service-card">
+            <h3>Delivery Order</h3>
+            <p>Mengirim dan menerima notifikasi.</p>
+            <button onclick="accessService('/delivery-order')">Akses</button>
+        </div>
+        <button id="logoutButton">Logout</button>
+    </div>
+
+    <script>
+        // Fungsi untuk mengakses mikroservis
+        async function accessService(servicePath) {
+            const token = localStorage.getItem('authToken');
+
+            if (!token) {
+                alert('Anda perlu login!');
+                window.location.href = '/login.html'; // Redirect ke halaman login
+                return;
+            }
+
+            try {
+                const response = await fetch(servicePath, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`, // Kirim token dalam header
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json(); // Ambil data dari mikroservis
+                    alert(`Respons dari ${servicePath}:\n` + JSON.stringify(data, null, 2));
+                } else if (response.status === 401 || response.status === 403) {
+                    alert('Token kedaluwarsa atau tidak valid. Silakan login kembali.');
+                    localStorage.removeItem('authToken');
+                    window.location.href = '/auth/login';
+                } else {
+                    alert(`Gagal mengakses ${servicePath}: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Gagal terhubung ke server.');
+            }
+        }
+
+        // Fungsi logout
+        document.getElementById('logoutButton').addEventListener('click', () => {
+            localStorage.removeItem('authToken'); // Hapus token
+            alert('Anda telah logout.');
+            window.location.href = '/auth/login'; // Redirect ke halaman login
+        });
+    </script>
+</body>
+</html>

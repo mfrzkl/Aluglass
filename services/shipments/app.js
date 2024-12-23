@@ -1,33 +1,65 @@
 const express = require('express');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const PORT = 3002;
+const shipmentService = express.Router();
+const db = require('../../db/connections');
 
-const app = express();
-app.use(bodyParser.json());
-
-// Koneksi MongoDB
-mongoose.connect('mongodb://localhost:27017/logistics')
-    .then(() => console.log('Connected to MongoDB'))
-    .catch((error) => console.error('Error connecting to MongoDB:', error));
-
-// Skema untuk tabel Shipments
-const shipmentSchema = new mongoose.Schema({
-    nomor_pengiriman: { type: String, required: true },
-    sales_order_id: { type: mongoose.Schema.Types.ObjectId, ref: 'SalesOrder', required: true },
-    delivery_order_id: { type: mongoose.Schema.Types.ObjectId, ref: 'DeliveryOrder', required: true },
-    produk: [
-        {
-            nama_produk: { type: String, required: true },
-            jumlah: { type: Number, required: true },
-            status: { type: String, enum: ['pending', 'in transit', 'delivered'], default: 'pending' }
+// Create a new shipment
+shipmentService.post('/', (req, res) => {
+    const { nomor_pengiriman, SO, DO, produk, tanggal_pengiriman, tanggal_diterima, status } = req.body;
+    db.query(
+        'INSERT INTO shipments (nomor_pengiriman, SO, DO, produk, tanggal_pengiriman, tanggal_diterima, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [nomor_pengiriman, SO, DO, JSON.stringify(produk), tanggal_pengiriman, tanggal_diterima, status],
+        (err, results) => {
+            if (err) return res.status(500).json(err);
+            res.json({ message: 'Shipment dibuat', id: results.insertId });
         }
-    ],
-    tanggal_pengiriman: { type: Date, required: true },
-    tanggal_diterima: { type: Date },
-    status: { type: String, enum: ['pending', 'in transit', 'delivered', 'canceled'], default: 'pending' }
+    );
 });
 
-const Shipment = mongoose.model('Shipment', shipmentSchema);
+// Get all shipments
+shipmentService.get('/', async (req, res) => {
+    try {
+        const [results] = await db.query('SELECT * FROM shipments');
+        res.json(results);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
-module.exports = Shipment;
+// Get a specific shipment by nomor_pengiriman
+shipmentService.get('/:nomor_pengiriman', (req, res) => {
+    const { nomor_pengiriman } = req.params;
+    db.query('SELECT * FROM shipments WHERE nomor_pengiriman = ?', [nomor_pengiriman], (err, results) => {
+        if (err) return res.status(500).json(err);
+        if (results.length === 0) return res.status(404).json({ message: 'Shipment tidak ditemukan' });
+        res.json(results[0]);
+    });
+});
+
+// Update a shipment
+shipmentService.put('/:nomor_pengiriman', (req, res) => {
+    const { nomor_pengiriman } = req.params;
+    const { SO, DO, produk, tanggal_pengiriman, tanggal_diterima, status } = req.body;
+    db.query(
+        'UPDATE shipments SET SO = ?, DO = ?, produk = ?, tanggal_pengiriman = ?, tanggal_diterima = ?, status = ? WHERE nomor_pengiriman = ?',
+        [SO, DO, JSON.stringify(produk), tanggal_pengiriman, tanggal_diterima, status, nomor_pengiriman],
+        (err, results) => {
+            if (err) return res.status(500).json(err);
+            res.json({ message: 'Shipment diupdate' });
+        }
+    );
+});
+
+// Delete a shipment by nomor_pengiriman
+shipmentService.delete('/:nomor_pengiriman', (req, res) => {
+    const { nomor_pengiriman } = req.params;
+    db.query('DELETE FROM shipments WHERE nomor_pengiriman = ?', [nomor_pengiriman], (err, results) => {
+        if (err) return res.status(500).json(err);
+        res.json({ message: 'Shipment dihapus' });
+    });
+});
+
+// Jalankan server
+const PORT = process.env.PORT || 3005;
+app.listen(PORT, () => {
+    console.log(`Inventory service running on port ${PORT}`);
+});

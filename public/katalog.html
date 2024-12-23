@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalog</title>
+</head>
+<body>
+    <h1>Catalog</h1>
+    <table id="inventoryTable">
+        <thead>
+            <tr>
+                <th>Kode Produk</th>
+                <th>Nama Produk</th>
+                <th>Kategori</th>
+                <th>Warna</th>
+                <th>Ketebalan</th>
+                <th>Dimensi</th>
+                <th>Stok</th>
+                <th>Harga Satuan</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <script>
+        async function fetchInventory() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('You must be logged in!');
+                window.location.href = '/login.html';
+                return;
+            }
+
+            const response = await fetch('/inventory', {
+                headers: { Authorization: token },
+            });
+
+            const data = await response.json();
+            const tableBody = document.querySelector('#inventoryTable tbody');
+            tableBody.innerHTML = data.map(item => `
+                <tr>
+                    <td>${item.kode_produk}</td>
+                    <td>${item.nama_produk}</td>
+                    <td>${item.kategori}</td>
+                    <td>${item.warna}</td>
+                    <td>${item.ketebalan} mm</td>
+                    <td>${item.panjang} x ${item.lebar} cm</td>
+                    <td>${item.stok}</td>
+                    <td>${item.harga_satuan}</td>
+                </tr>
+            `).join('');
+        }
+
+        fetchInventory();
+    </script>
+</body>
+</html>
