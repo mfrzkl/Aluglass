@@ -3,27 +3,30 @@
 Aluglass is an application designed to streamline the management of sales orders (SO), delivery orders (DO), inventory, and shipment tracking for glass and aluminum products.
 
 # Microservices
-  ** invetory **
+
+Turn on port each services
+
+  ## Invetory
   localhost:3001
    ```bash
    services/inventory/ node app.js
    ```
-  ** invetory **
+  ## Sales Orders
   localhost:3002
   ```bash
    services/sales-order/ node app.js
    ```
-  ** invetory **
+  ## Delivery Order
   localhost:3003
   ```bash
    services/delivery-order/ node app.js
    ```
-  ** invetory **
+  ## Invoice
   localhost:3004
   ```bash
    services/invoice/ node app.js
    ```
-  ** invetory **
+  ## Shipments
   localhost:3005
   ```bash
    services/shipments/ node app.js
