@@ -10,9 +10,12 @@ CREATE TABLE inventory (
     kategori ENUM('kaca', 'aluminium') NOT NULL,
     warna VARCHAR(50) NOT NULL,
     ketebalan FLOAT NOT NULL,
-    dimensi VARCHAR(255) NOT NULL,
+    panjang1 INT NOT NULL,
+    lebar1 INT NOT NULL,
+    panjang2 INT,
+    lebar2 INT,
     stok INT NOT NULL,
-    harga_satuan FLOAT NOT NULL,
+    harga_satuan FLOAT NOT NULL
 );
 
 -- Create sales_order table
@@ -21,141 +24,208 @@ CREATE TABLE sales_order (
     tanggal_pesanan DATE NOT NULL,
     pelanggan VARCHAR(255) NOT NULL,
     status ENUM('pending', 'paid', 'canceled') DEFAULT 'pending',
-    total_harga FLOAT NOT NULL,
-    produk JSON NOT NULL
+    produk JSON NOT NULL,
+    qty INT NOT NULL,
+    total_harga FLOAT NOT NULL
 );
 
 -- Create delivery_orders table
-CREATE TABLE delivery_orders (
+CREATE TABLE delivery_order (
     DO_NO VARCHAR(20) NOT NULL UNIQUE PRIMARY KEY,
     SO_NO VARCHAR(20) NOT NULL,
-    tanggal_pengiriman DATE NOT NULL,
-    status ENUM('dikemas', 'dalam perjalanan', 'selesai') DEFAULT 'dikemas',
+    tanggal_dikirim DATE NOT NULL,
+    penerima VARCHAR(255) NOT NULL,
+    alamat VARCHAR(255) NOT NULL,
+    catatan VARCHAR(255),
+    status ENUM('diproses', 'barang telah keluar', 'canceled') DEFAULT 'diproses',
     FOREIGN KEY (SO_NO) REFERENCES sales_order(sales_order_no)
 );
 
 -- Create invoices table
 CREATE TABLE invoices (
     invoice_no VARCHAR(20) NOT NULL UNIQUE PRIMARY KEY,
+    SO_NO VARCHAR(20) NOT NULL,
     sales_name VARCHAR(255) NOT NULL,
-    metode_pembayaran VARCHAR(50) NOT NULL,
+    metode_pembayaran ENUM('cek', 'debit') NOT NULL,
     tanggal_pembayaran DATE,
-    status_pembayaran ENUM('dp', 'dibayar lunas', 'outstanding') DEFAULT 'outstanding',
+    status_pembayaran ENUM('lunas', 'outstanding') DEFAULT 'outstanding',
     tanggal_penagihan DATE,
     customer VARCHAR(255) NOT NULL,
     nominal FLOAT NOT NULL,
-    produk JSON NOT NULL
+    produk JSON,
+    FOREIGN KEY (SO_NO) REFERENCES sales_order(sales_order_no)
 );
 
 -- Create shipments table
 CREATE TABLE shipments (
     nomor_pengiriman VARCHAR(20) NOT NULL PRIMARY KEY,
-    SO VARCHAR(20) NOT NULL,
-    DO VARCHAR(20) NOT NULL,
     produk JSON NOT NULL,
     tanggal_pengiriman DATE NOT NULL,
     tanggal_diterima DATE,
-    status ENUM('dikemas', 'dalam perjalanan', 'selesai') DEFAULT 'dikemas'
+    status ENUM('diproses', 'dalam perjalanan', 'selesai') DEFAULT 'diproses'
 );
 
--- Insert 10 sample inventory data
 -- Insert 50 sample inventory data
-INSERT INTO inventory (kode_produk, nama_produk, kategori, warna, ketebalan, stok, harga_satuan, dimensi) VALUES
-('KP001', 'Kaca Tempered', 'kaca', 'Bening', 10, 100, 250000, '100x200'),
-('KP002', 'Kaca Laminated', 'kaca', 'Hijau', 12, 50, 300000, '150x250'),
-('KP003', 'Kaca Buram', 'kaca', 'Putih Susu', 8, 75, 200000, '120x240'),
-('PA001', 'Profil Aluminium U-Shape', 'aluminium', 'Silver', 3, 150, 50000, '40x2000'),
-('PA002', 'Frame Aluminium', 'aluminium', 'Hitam', 4, 120, 75000, '50x2500'),
-('PA003', 'Profil Aluminium L-Shape', 'aluminium', 'Silver', 2, 200, 60000, '30x3000'),
-('KP004', 'Kaca Polos', 'kaca', 'Bening', 6, 200, 150000, '100x150'),
-('KP005', 'Kaca Dekoratif', 'kaca', 'Coklat', 10, 50, 275000, '120x200'),
-('PA004', 'Profil Aluminium C-Shape', 'aluminium', 'Silver', 5, 80, 85000, '50x2500'),
-('PA005', 'Profil Aluminium Corner', 'aluminium', 'Hitam', 6, 100, 95000, '60x3000'),
--- Additional data samples
-('KP006', 'Kaca Es', 'kaca', 'Frosted', 5, 120, 180000, '90x180'),
-('KP007', 'Kaca Reflektif', 'kaca', 'Biru', 12, 60, 320000, '150x300'),
-('KP008', 'Kaca Warna', 'kaca', 'Merah', 8, 80, 250000, '100x200'),
-('PA006', 'Profil Aluminium T-Shape', 'aluminium', 'Silver', 4, 130, 70000, '60x2500'),
-('PA007', 'Profil Aluminium Flat', 'aluminium', 'Hitam', 3, 160, 65000, '50x2000'),
-('KP009', 'Kaca Anti Peluru', 'kaca', 'Transparan', 20, 25, 5000000, '200x300'),
-('KP010', 'Kaca Anti Panas', 'kaca', 'Abu-abu', 10, 40, 350000, '150x200'),
-('PA008', 'Profil Aluminium R-Shape', 'aluminium', 'Silver', 5, 90, 85000, '60x3000'),
-('PA009', 'Profil Aluminium Hollow', 'aluminium', 'Hitam', 6, 110, 100000, '70x2500'),
-('KP011', 'Kaca Tekstur', 'kaca', 'Bening', 6, 140, 230000, '120x180'),
-('KP012', 'Kaca Kristal', 'kaca', 'Biru Muda', 8, 50, 400000, '100x150'),
-('PA010', 'Profil Aluminium I-Shape', 'aluminium', 'Silver', 3, 100, 55000, '50x2000'),
-('KP013', 'Kaca Double Glazed', 'kaca', 'Hijau', 16, 30, 600000, '200x250'),
-('KP014', 'Kaca Solar Control', 'kaca', 'Hitam', 10, 40, 450000, '150x200'),
-('KP015', 'Kaca Low-E', 'kaca', 'Bening', 12, 35, 500000, '180x300'),
-('PA011', 'Profil Aluminium Angled', 'aluminium', 'Silver', 4, 120, 70000, '60x2500'),
-('PA012', 'Profil Aluminium Grid', 'aluminium', 'Hitam', 5, 80, 90000, '80x3000'),
-('KP016', 'Kaca Acoustic', 'kaca', 'Putih', 14, 40, 480000, '150x300'),
-('KP017', 'Kaca Mirrored', 'kaca', 'Silver', 10, 50, 350000, '120x200'),
-('PA013', 'Profil Aluminium Curved', 'aluminium', 'Silver', 6, 70, 95000, '70x3000'),
-('PA014', 'Profil Aluminium Seamless', 'aluminium', 'Hitam', 4, 95, 80000, '50x2000'),
-('KP018', 'Kaca UV Blocking', 'kaca', 'Transparan', 15, 20, 550000, '180x250'),
-('KP019', 'Kaca Heat Strengthened', 'kaca', 'Hijau', 12, 45, 400000, '150x200'),
-('KP020', 'Kaca Switchable', 'kaca', 'Bening', 18, 10, 800000, '200x300'),
-('PA015', 'Profil Aluminium Modular', 'aluminium', 'Silver', 5, 60, 85000, '60x3000'),
-('PA016', 'Profil Aluminium Light', 'aluminium', 'Hitam', 3, 100, 60000, '40x2500'),
-('KP021', 'Kaca Safety', 'kaca', 'Coklat', 8, 80, 220000, '120x150'),
-('KP022', 'Kaca Float', 'kaca', 'Abu-abu', 6, 100, 200000, '100x180'),
-('PA017', 'Profil Aluminium Heavy', 'aluminium', 'Silver', 7, 50, 100000, '70x3000'),
-('KP023', 'Kaca Pyrolytic', 'kaca', 'Merah', 10, 30, 350000, '150x200'),
-('KP024', 'Kaca Frosted Warna', 'kaca', 'Hijau', 8, 70, 270000, '120x180'),
-('PA018', 'Profil Aluminium Decorative', 'aluminium', 'Silver', 6, 90, 95000, '60x2500'),
-('PA019', 'Profil Aluminium Stamped', 'aluminium', 'Hitam', 4, 85, 75000, '50x2000'),
-('KP025', 'Kaca Wire Mesh', 'kaca', 'Putih', 8, 40, 300000, '100x150'),
-('KP026', 'Kaca Patterned', 'kaca', 'Kuning', 5, 110, 250000, '120x200');
+INSERT INTO inventory (kode_produk, nama_produk, kategori, warna, ketebalan, panjang1, lebar1, panjang2, lebar2, stok, harga_satuan)
+VALUES
+('KACA001', 'Kaca Jendela', 'kaca', 'Transparan', 5.0, 100, 50, NULL, NULL, 50, 200000),
+('KACA002', 'Kaca Cermin', 'kaca', 'Silver', 6.0, 120, 60, NULL, NULL, 30, 250000),
+('ALU001', 'Pintu Aluminium', 'aluminium', 'Putih', 2.5, 200, 90, 150, 70, 20, 1500000),
+('ALU002', 'Panel Aluminium', 'aluminium', 'Hitam', 3.0, 250, 100, NULL, NULL, 40, 1000000),
+('KACA003', 'Kaca Tempered', 'kaca', 'Hitam', 8.0, 150, 80, NULL, NULL, 15, 350000),
+('ALU003', 'Jendela Aluminium', 'aluminium', 'Perak', 2.0, 180, 70, 130, 60, 25, 1200000),
+('KACA004', 'Kaca Bengkok', 'kaca', 'Hijau', 7.0, 110, 50, NULL, NULL, 10, 300000),
+('ALU004', 'Pintu Aluminium Double', 'aluminium', 'Coklat', 4.0, 220, 90, 180, 80, 12, 1800000),
+('KACA005', 'Kaca Tempered', 'kaca', 'Clear', 10.0, 160, 90, NULL, NULL, 8, 400000),
+('ALU005', 'Papan Aluminium', 'aluminium', 'Emas', 1.5, 200, 100, NULL, NULL, 60, 950000);
 
--- Insert 10 sample sales orders
-INSERT INTO sales_order (sales_order_no, tanggal_pesanan, pelanggan, status, total_harga, produk) VALUES
-('SO/FR-303/1/01012024', '2024-01-01', 'PT. Kaca Sejahtera', 'pending', 15000000, '[{"nama_produk": "Kaca Tempered", "warna": "Bening", "ketebalan": 10, "dimensi": "200x150 cm", "jumlah": 10}]'),
-('SO/FR-303/2/01012024', '2024-01-02', 'CV. AluminiTech', 'paid', 5000000, '[{"nama_produk": "Profil Aluminium U-Shape", "warna": "Silver", "ketebalan": 3, "dimensi": "40x2000 mm", "jumlah": 30}]'),
-('SO/EL-183/1/02012024', '2024-01-02', 'PT. Kaca Mandiri', 'pending', 12000000, '[{"nama_produk": "Kaca Laminated", "warna": "Hijau", "ketebalan": 12, "dimensi": "150x250 cm", "jumlah": 15}]'),
-('SO/EL-183/2/02012024', '2024-01-03', 'CV. GlassWorld', 'paid', 20000000, '[{"nama_produk": "Kaca Buram", "warna": "Putih Susu", "ketebalan": 8, "dimensi": "120x240 cm", "jumlah": 25}]'),
-('SO/FR-303/3/03012024', '2024-01-03', 'PT. AluKaca', 'paid', 10000000, '[{"nama_produk": "Kaca Tempered", "warna": "Bening", "ketebalan": 6, "dimensi": "150x100 cm", "jumlah": 20}]'),
-('SO/FR-303/4/03012024', '2024-01-04', 'CV. AluminiTech', 'pending', 8000000, '[{"nama_produk": "Frame Aluminium", "warna": "Hitam", "ketebalan": 4, "dimensi": "50x2500 mm", "jumlah": 20}]'),
-('SO/EL-183/3/04012024', '2024-01-04', 'PT. Kaca Indah', 'paid', 9500000, '[{"nama_produk": "Kaca Polos", "warna": "Bening", "ketebalan": 6, "dimensi": "100x150 cm", "jumlah": 10}]'),
-('SO/EL-183/4/04012024', '2024-01-05', 'CV. GlassTech', 'paid', 7500000, '[{"nama_produk": "Kaca Laminated", "warna": "Coklat", "ketebalan": 8, "dimensi": "120x200 cm", "jumlah": 12}]'),
-('SO/FR-303/5/05012024', '2024-01-05', 'PT. Kaca Raya', 'pending', 18000000, '[{"nama_produk": "Kaca Tempered", "warna": "Bening", "ketebalan": 8, "dimensi": "200x150 cm", "jumlah": 15}]'),
-('SO/FR-303/6/05012024', '2024-01-06', 'CV. AluminiWorld', 'paid', 13000000, '[{"nama_produk": "Profil Aluminium L-Shape", "warna": "Silver", "ketebalan": 2, "dimensi": "30x3000 mm", "jumlah": 40}]');
+-- INSERT INTO sales_order (sales_order_no, tanggal_pesanan, pelanggan, status, total_harga, produk)
+-- VALUES
+-- ('SO001', '2024-12-01', 'PT. ABC', 'pending', 5000000, '[{"kode_produk":"KACA001","jumlah":10},{"kode_produk":"ALU001","jumlah":5}]'),
+-- ('SO002', '2024-12-02', 'CV. XYZ', 'paid', 3000000, '[{"kode_produk":"KACA002","jumlah":5}]'),
+-- ('SO003', '2024-12-03', 'Toko Maju', 'canceled', 12000000, '[{"kode_produk":"ALU002","jumlah":8},{"kode_produk":"KACA003","jumlah":4}]'),
+-- ('SO004', '2024-12-04', 'Toko Jaya', 'pending', 10000000, '[{"kode_produk":"KACA004","jumlah":2},{"kode_produk":"ALU003","jumlah":3}]'),
+-- ('SO005', '2024-12-05', 'Perusahaan Kencana', 'paid', 7000000, '[{"kode_produk":"ALU004","jumlah":5}]'),
+-- ('SO006', '2024-12-06', 'PT. Gemilang', 'paid', 15000000, '[{"kode_produk":"KACA005","jumlah":3},{"kode_produk":"ALU005","jumlah":6}]'),
+-- ('SO007', '2024-12-07', 'Toko Sukses', 'pending', 4000000, '[{"kode_produk":"KACA002","jumlah":7}]'),
+-- ('SO008', '2024-12-08', 'PT. Jaya Abadi', 'canceled', 8000000, '[{"kode_produk":"ALU001","jumlah":10}]'),
+-- ('SO009', '2024-12-09', 'CV. Sejahtera', 'paid', 5500000, '[{"kode_produk":"KACA003","jumlah":6}]'),
+-- ('SO010', '2024-12-10', 'Toko Indah', 'pending', 3500000, '[{"kode_produk":"ALU003","jumlah":4},{"kode_produk":"KACA004","jumlah":2}]');
+INSERT INTO sales_order VALUES (
+    'SO-2024001',
+    '2024-01-15',
+    'PT Maju Jaya',
+    'pending',
+    '[{"kode_produk":"P001","nama_produk":"Besi Hollow","qty":50,"harga_satuan":75000},{"kode_produk":"P002","nama_produk":"Plat Baja","qty":25,"harga_satuan":120000}]',
+    75,
+    6750000
+);
 
--- Insert 10 sample delivery orders (DO_NO references SO_NO)
-INSERT INTO delivery_orders (DO_NO, SO_NO, tanggal_pengiriman, status) VALUES
-('DO/1/01012024', 'SO/FR-303/1/01012024', '2024-01-05', 'dalam perjalanan'),
-('DO/2/01012024', 'SO/FR-303/2/01012024', '2024-01-06', 'dikemas'),
-('DO/3/02012024', 'SO/EL-183/1/02012024', '2024-01-07', 'selesai'),
-('DO/4/02012024', 'SO/EL-183/2/02012024', '2024-01-08', 'dalam perjalanan'),
-('DO/5/03012024', 'SO/FR-303/3/03012024', '2024-01-09', 'selesai'),
-('DO/6/03012024', 'SO/FR-303/4/03012024', '2024-01-10', 'dikemas'),
-('DO/7/04012024', 'SO/EL-183/3/04012024', '2024-01-11', 'selesai'),
-('DO/8/04012024', 'SO/EL-183/4/04012024', '2024-01-12', 'dalam perjalanan'),
-('DO/9/05012024', 'SO/FR-303/5/05012024', '2024-01-13', 'dikemas'),
-('DO/10/05012024', 'SO/FR-303/6/05012024', '2024-01-14', 'selesai');
+INSERT INTO sales_order VALUES (
+    'SO-2024002',
+    '2024-01-20',
+    'CV Sukses Mandiri',
+    'paid',
+    '[{"kode_produk":"P003","nama_produk":"Pipa Besi","qty":100,"harga_satuan":45000}]',
+    100,
+    4500000
+);
 
--- Insert 10 sample shipments (Nomor_pengiriman references SO and DO)
-INSERT INTO shipments (nomor_pengiriman, SO, DO, produk, tanggal_pengiriman, tanggal_diterima, status) VALUES
-('000101202401', 'SO/FR-303/1/01012024', 'DO/1/01012024', '[{"nama_produk": "Kaca Tempered", "warna": "Bening", "ketebalan": 10, "dimensi": "200x150 cm", "jumlah": 10}]', '2024-01-05', NULL, 'dalam perjalanan'),
-('000102202402', 'SO/FR-303/2/01012024', 'DO/2/01012024', '[{"nama_produk": "Profil Aluminium U-Shape", "warna": "Silver", "ketebalan": 3, "dimensi": "40x2000 mm", "jumlah": 30}]', '2024-01-06', NULL, 'dikemas'),
-('000201202403', 'SO/EL-183/1/02012024', 'DO/3/02012024', '[{"nama_produk": "Kaca Laminated", "warna": "Hijau", "ketebalan": 12, "dimensi": "150x250 cm", "jumlah": 15}]', '2024-01-07', '2024-01-08', 'selesai'),
-('000202202404', 'SO/EL-183/2/02012024', 'DO/4/02012024', '[{"nama_produk": "Kaca Buram", "warna": "Putih Susu", "ketebalan": 8, "dimensi": "120x240 cm", "jumlah": 25}]', '2024-01-08', NULL, 'dalam perjalanan'),
-('000301202405', 'SO/FR-303/3/03012024', 'DO/5/03012024', '[{"nama_produk": "Kaca Tempered", "warna": "Bening", "ketebalan": 6, "dimensi": "150x100 cm", "jumlah": 20}]', '2024-01-09', '2024-01-10', 'selesai'),
-('000302202406', 'SO/FR-303/4/03012024', 'DO/6/03012024', '[{"nama_produk": "Frame Aluminium", "warna": "Hitam", "ketebalan": 4, "dimensi": "50x2500 mm", "jumlah": 20}]', '2024-01-10', NULL, 'dikemas'),
-('000401202407', 'SO/EL-183/3/04012024', 'DO/7/04012024', '[{"nama_produk": "Kaca Polos", "warna": "Bening", "ketebalan": 6, "dimensi": "100x150 cm", "jumlah": 10}]', '2024-01-11', '2024-01-12', 'selesai'),
-('000402202408', 'SO/EL-183/4/04012024', 'DO/8/04012024', '[{"nama_produk": "Kaca Laminated", "warna": "Coklat", "ketebalan": 8, "dimensi": "120x200 cm", "jumlah": 12}]', '2024-01-12', NULL, 'dalam perjalanan'),
-('000501202409', 'SO/FR-303/5/05012024', 'DO/9/05012024', '[{"nama_produk": "Kaca Tempered", "warna": "Bening", "ketebalan": 8, "dimensi": "200x150 cm", "jumlah": 15}]', '2024-01-13', NULL, 'dikemas'),
-('000502202410', 'SO/FR-303/6/05012024', 'DO/10/05012024', '[{"nama_produk": "Profil Aluminium L-Shape", "warna": "Silver", "ketebalan": 2, "dimensi": "30x3000 mm", "jumlah": 40}]', '2024-01-14', '2024-01-15', 'selesai');
+INSERT INTO sales_order VALUES (
+    'SO-2024003',
+    '2024-02-01',
+    'UD Makmur Sejahtera',
+    'canceled',
+    '[{"kode_produk":"P001","nama_produk":"Besi Hollow","qty":30,"harga_satuan":75000},{"kode_produk":"P004","nama_produk":"Kawat Las","qty":20,"harga_satuan":85000}]',
+    50,
+    3950000
+);
 
--- Insert 10 sample invoices (Invoice No references Sales Order)
-INSERT INTO invoices (invoice_no, sales_name, metode_pembayaran, tanggal_pembayaran, status_pembayaran, tanggal_penagihan, customer, nominal, produk) VALUES
-('INV-0001', 'Francisca', 'Transfer', '2024-01-05', 'dibayar lunas', '2024-01-01', 'PT. Kaca Sejahtera', 15000000, '[{"nama_produk": "Kaca Tempered", "warna": "Bening", "ketebalan": 10, "dimensi": "200x150 cm", "jumlah": 10}]'),
-('INV-0002', 'Francisca', 'Cash', '2024-01-06', 'dibayar lunas', '2024-01-02', 'CV. AluminiTech', 5000000, '[{"nama_produk": "Profil Aluminium U-Shape", "warna": "Silver", "ketebalan": 3, "dimensi": "40x2000 mm", "jumlah": 30}]'),
-('INV-0003', 'Elvira', 'Transfer', '2024-01-08', 'dibayar lunas', '2024-01-02', 'PT. Kaca Mandiri', 12000000, '[{"nama_produk": "Kaca Laminated", "warna": "Hijau", "ketebalan": 12, "dimensi": "150x250 cm", "jumlah": 15}]'),
-('INV-0004', 'Elvira', 'Cash', '2024-01-09', 'dibayar lunas', '2024-01-03', 'CV. GlassWorld', 20000000, '[{"nama_produk": "Kaca Buram", "warna": "Putih Susu", "ketebalan": 8, "dimensi": "120x240 cm", "jumlah": 25}]'),
-('INV-0005', 'Francisca', 'Transfer', '2024-01-10', 'dibayar lunas', '2024-01-03', 'PT. AluKaca', 10000000, '[{"nama_produk": "Kaca Tempered", "warna": "Bening", "ketebalan": 6, "dimensi": "150x100 cm", "jumlah": 20}]'),
-('INV-0006', 'Francisca', 'Cash', '2024-01-11', 'dibayar lunas', '2024-01-04', 'CV. AluminiTech', 8000000, '[{"nama_produk": "Frame Aluminium", "warna": "Hitam", "ketebalan": 4, "dimensi": "50x2500 mm", "jumlah": 20}]'),
-('INV-0007', 'Elvira', 'Transfer', '2024-01-12', 'dibayar lunas', '2024-01-04', 'PT. Kaca Indah', 9500000, '[{"nama_produk": "Kaca Polos", "warna": "Bening", "ketebalan": 6, "dimensi": "100x150 cm", "jumlah": 10}]'),
-('INV-0008', 'Elvira', 'Cash', '2024-01-13', 'dibayar lunas', '2024-01-05', 'CV. GlassTech', 7500000, '[{"nama_produk": "Kaca Laminated", "warna": "Coklat", "ketebalan": 8, "dimensi": "120x200 cm", "jumlah": 12}]'),
-('INV-0009', 'Francisca', 'Transfer', '2024-01-14', 'dibayar lunas', '2024-01-06', 'PT. Kaca Raya', 18000000, '[{"nama_produk": "Kaca Tempered", "warna": "Bening", "ketebalan": 8, "dimensi": "200x150 cm", "jumlah": 15}]'),
-('INV-0010', 'Francisca', 'Cash', '2024-01-15', 'dibayar lunas', '2024-01-07', 'CV. AluminiWorld', 13000000, '[{"nama_produk": "Profil Aluminium L-Shape", "warna": "Silver", "ketebalan": 2, "dimensi": "30x3000 mm", "jumlah": 40}]');
+INSERT INTO sales_order VALUES (
+    'SO-2024004',
+    '2024-02-15',
+    'PT Baja Utama',
+    'paid',
+    '[{"kode_produk":"P002","nama_produk":"Plat Baja","qty":40,"harga_satuan":120000},{"kode_produk":"P005","nama_produk":"Seng Gelombang","qty":35,"harga_satuan":95000}]',
+    75,
+    8125000
+);
+
+INSERT INTO sales_order VALUES (
+    'SO-2024005',
+    '2024-02-28',
+    'CV Karya Abadi',
+    'pending',
+    '[{"kode_produk":"P003","nama_produk":"Pipa Besi","qty":60,"harga_satuan":45000},{"kode_produk":"P001","nama_produk":"Besi Hollow","qty":45,"harga_satuan":75000}]',
+    105,
+    6075000
+);
+
+INSERT INTO sales_order VALUES (
+    'SO-2024006',
+    '2024-03-05',
+    'UD Berkah Jaya',
+    'paid',
+    '[{"kode_produk":"P004","nama_produk":"Kawat Las","qty":75,"harga_satuan":85000}]',
+    75,
+    6375000
+);
+
+INSERT INTO sales_order VALUES (
+    'SO-2024007',
+    '2024-03-10',
+    'PT Logam Indah',
+    'pending',
+    '[{"kode_produk":"P005","nama_produk":"Seng Gelombang","qty":50,"harga_satuan":95000},{"kode_produk":"P002","nama_produk":"Plat Baja","qty":30,"harga_satuan":120000}]',
+    80,
+    8350000
+);
+
+INSERT INTO sales_order VALUES (
+    'SO-2024008',
+    '2024-03-15',
+    'CV Mitra Usaha',
+    'paid',
+    '[{"kode_produk":"P001","nama_produk":"Besi Hollow","qty":90,"harga_satuan":75000},{"kode_produk":"P003","nama_produk":"Pipa Besi","qty":55,"harga_satuan":45000}]',
+    145,
+    9225000
+);
+
+INSERT INTO sales_order VALUES (
+    'SO-2024009',
+    '2024-03-20',
+    'PT Baja Sentosa',
+    'canceled',
+    '[{"kode_produk":"P002","nama_produk":"Plat Baja","qty":25,"harga_satuan":120000},{"kode_produk":"P004","nama_produk":"Kawat Las","qty":40,"harga_satuan":85000}]',
+    65,
+    6400000
+);
+
+INSERT INTO sales_order VALUES (
+    'SO-2024010',
+    '2024-03-25',
+    'UD Sejahtera Abadi',
+    'pending',
+    '[{"kode_produk":"P005","nama_produk":"Seng Gelombang","qty":70,"harga_satuan":95000},{"kode_produk":"P001","nama_produk":"Besi Hollow","qty":35,"harga_satuan":75000}]',
+    105,
+    9275000
+);
+
+INSERT INTO invoices (invoice_no, SO_NO, sales_name, metode_pembayaran, tanggal_pembayaran, status_pembayaran, tanggal_penagihan, customer, nominal, produk)
+VALUES
+('INV001', 'SO001', 'Eko Prasetyo', 'debit', '2024-12-05', 'lunas', '2024-12-01', 'PT. ABC', 5000000, '[{"kode_produk":"KACA001","jumlah":10},{"kode_produk":"ALU001","jumlah":5}]'),
+('INV002', 'SO002', 'Lina Oktavia', 'cek', '2024-12-06', 'lunas', '2024-12-02', 'CV. XYZ', 3000000, '[{"kode_produk":"KACA002","jumlah":5}]'),
+('INV003', 'SO003', 'Faisal Rachman', 'debit', NULL, 'outstanding', '2024-12-03', 'Toko Maju', 12000000, '[{"kode_produk":"ALU002","jumlah":8},{"kode_produk":"KACA003","jumlah":4}]'),
+('INV004', 'SO004', 'Rizky Maulana', 'debit', '2024-12-06', 'lunas', '2024-12-04', 'Toko Jaya', 10000000, '[{"kode_produk":"KACA004","jumlah":2},{"kode_produk":"ALU003","jumlah":3}]'),
+('INV005', 'SO005', 'Dian Putri', 'cek', '2024-12-07', 'lunas', '2024-12-05', 'Perusahaan Kencana', 7000000, '[{"kode_produk":"ALU004","jumlah":5}]'),
+('INV006', 'SO006', 'Asep Hidayat', 'debit', '2024-12-08', 'lunas', '2024-12-06', 'PT. Gemilang', 15000000, '[{"kode_produk":"KACA005","jumlah":3},{"kode_produk":"ALU005","jumlah":6}]'),
+('INV007', 'SO007', 'Maya Sari', 'cek', NULL, 'outstanding', '2024-12-07', 'Toko Sukses', 4000000, '[{"kode_produk":"KACA002","jumlah":7}]'),
+('INV008', 'SO008', 'Agus Priyanto', 'debit', '2024-12-09', 'lunas', '2024-12-08', 'PT. Jaya Abadi', 8000000, '[{"kode_produk":"ALU001","jumlah":10}]'),
+('INV009', 'SO009', 'Wulan Pertiwi', 'cek', NULL, 'outstanding', '2024-12-09', 'CV. Sejahtera', 5500000, '[{"kode_produk":"KACA003","jumlah":6}]'),
+('INV010', 'SO010', 'Rudi Setiawan', 'debit', '2024-12-10', 'lunas', '2024-12-10', 'Toko Indah', 3500000, '[{"kode_produk":"ALU003","jumlah":4},{"kode_produk":"KACA004","jumlah":2}]');
+
+INSERT INTO delivery_order (DO_NO, SO_NO, tanggal_dikirim, penerima, alamat, catatan, status)
+VALUES
+('DO001', 'SO001', '2024-12-02', 'John Doe', 'Jl. Raya No. 12, Jakarta', 'Segera dikirim', 'diproses'),
+('DO002', 'SO002', '2024-12-03', 'Jane Smith', 'Jl. Merdeka No. 5, Surabaya', NULL, 'barang telah keluar'),
+('DO003', 'SO003', '2024-12-04', 'Ahmad Yani', 'Jl. Sudirman No. 10, Bandung', 'Dibatalkan', 'canceled'),
+('DO004', 'SO004', '2024-12-06', 'Budi Santoso', 'Jl. Semangka No. 4, Yogyakarta', NULL, 'diproses'),
+('DO005', 'SO005', '2024-12-07', 'Chandra Wijaya', 'Jl. Kuningan No. 7, Medan', NULL, 'barang telah keluar'),
+('DO006', 'SO006', '2024-12-08', 'Dewi Lestari', 'Jl. Melati No. 8, Makassar', 'Segera dikirim', 'diproses'),
+('DO007', 'SO007', '2024-12-09', 'Rina Rahayu', 'Jl. Anggrek No. 3, Bali', NULL, 'diproses'),
+('DO008', 'SO008', '2024-12-10', 'Tomi Setiawan', 'Jl. Mangga No. 6, Bogor', NULL, 'barang telah keluar'),
+('DO009', 'SO009', '2024-12-11', 'Lina Puspita', 'Jl. Cempaka No. 2, Palembang', 'Dibatalkan', 'canceled'),
+('DO010', 'SO010', '2024-12-12', 'Andi Wibowo', 'Jl. Kenanga No. 11, Semarang', NULL, 'diproses');
+
+INSERT INTO shipments (nomor_pengiriman, produk, tanggal_pengiriman, tanggal_diterima, status)
+VALUES
+('SP001', '[{"kode_produk":"KACA001","jumlah":10},{"kode_produk":"ALU001","jumlah":5}]', '2024-12-05', '2024-12-06', 'selesai'),
+('SP002', '[{"kode_produk":"KACA002","jumlah":5}]', '2024-12-06', '2024-12-07', 'selesai'),
+('SP003', '[{"kode_produk":"ALU002","jumlah":8},{"kode_produk":"KACA003","jumlah":4}]', '2024-12-07', NULL, 'dalam perjalanan'),
+('SP004', '[{"kode_produk":"KACA004","jumlah":2},{"kode_produk":"ALU003","jumlah":3}]', '2024-12-08', '2024-12-09', 'selesai'),
+('SP005', '[{"kode_produk":"ALU004","jumlah":5}]', '2024-12-09', NULL, 'dalam perjalanan'),
+('SP006', '[{"kode_produk":"KACA005","jumlah":3},{"kode_produk":"ALU005","jumlah":6}]', '2024-12-10', NULL, 'diproses'),
+('SP007', '[{"kode_produk":"KACA002","jumlah":7}]', '2024-12-10', '2024-12-11', 'selesai'),
+('SP008', '[{"kode_produk":"ALU001","jumlah":10}]', '2024-12-12', NULL, 'dalam perjalanan'),
+('SP009', '[{"kode_produk":"KACA003","jumlah":6}]', '2024-12-13', NULL, 'diproses'),
+('SP010', '[{"kode_produk":"ALU003","jumlah":4},{"kode_produk":"KACA004","jumlah":2}]', '2024-12-14', NULL, 'diproses');

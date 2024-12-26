@@ -1,9 +1,10 @@
 const express = require('express');
 const shipmentService = express.Router();
 const db = require('../../db/connections');
+const app = express();
 
 // Create a new shipment
-shipmentService.post('/', (req, res) => {
+app.post('/', (req, res) => {
     const { nomor_pengiriman, SO, DO, produk, tanggal_pengiriman, tanggal_diterima, status } = req.body;
     db.query(
         'INSERT INTO shipments (nomor_pengiriman, SO, DO, produk, tanggal_pengiriman, tanggal_diterima, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
@@ -16,7 +17,7 @@ shipmentService.post('/', (req, res) => {
 });
 
 // Get all shipments
-shipmentService.get('/', async (req, res) => {
+app.get('/', async (req, res) => {
     try {
         const [results] = await db.query('SELECT * FROM shipments');
         res.json(results);
@@ -26,7 +27,7 @@ shipmentService.get('/', async (req, res) => {
 });
 
 // Get a specific shipment by nomor_pengiriman
-shipmentService.get('/:nomor_pengiriman', (req, res) => {
+app.get('/:nomor_pengiriman', (req, res) => {
     const { nomor_pengiriman } = req.params;
     db.query('SELECT * FROM shipments WHERE nomor_pengiriman = ?', [nomor_pengiriman], (err, results) => {
         if (err) return res.status(500).json(err);
@@ -36,7 +37,7 @@ shipmentService.get('/:nomor_pengiriman', (req, res) => {
 });
 
 // Update a shipment
-shipmentService.put('/:nomor_pengiriman', (req, res) => {
+app.put('/:nomor_pengiriman', (req, res) => {
     const { nomor_pengiriman } = req.params;
     const { SO, DO, produk, tanggal_pengiriman, tanggal_diterima, status } = req.body;
     db.query(
@@ -50,7 +51,7 @@ shipmentService.put('/:nomor_pengiriman', (req, res) => {
 });
 
 // Delete a shipment by nomor_pengiriman
-shipmentService.delete('/:nomor_pengiriman', (req, res) => {
+app.delete('/:nomor_pengiriman', (req, res) => {
     const { nomor_pengiriman } = req.params;
     db.query('DELETE FROM shipments WHERE nomor_pengiriman = ?', [nomor_pengiriman], (err, results) => {
         if (err) return res.status(500).json(err);

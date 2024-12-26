@@ -1,8 +1,9 @@
 const express = require('express');
 const invoiceService = express();
 const db = require('../../db/connections');
+const app = express();
 
-invoiceService.post('/', (req, res) => {
+app.post('/', (req, res) => {
     const { invoice_no, sales_name, metode_pembayaran, tanggal_pembayaran, status_pembayaran, tanggal_penagihan, customer, nominal, produk } = req.body;
     db.query(
         'INSERT INTO invoices (invoice_no, sales_name, metode_pembayaran, tanggal_pembayaran, status_pembayaran, tanggal_penagihan, customer, nominal, produk) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
@@ -14,8 +15,7 @@ invoiceService.post('/', (req, res) => {
     );
 });
 
-// Get all invoices
-invoiceService.get('/', async (req, res) => {
+app.get('/', async (req, res) => {
     try {
         const [results] = await db.query('SELECT * FROM invoices');
         res.json(results);
@@ -24,8 +24,7 @@ invoiceService.get('/', async (req, res) => {
     }
 });
 
-// Get a single invoice by invoice_no
-invoiceService.get('/:invoice_no', (req, res) => {
+app.get('/:invoice_no', (req, res) => {
     const { invoice_no } = req.params;
     db.query('SELECT * FROM invoices WHERE invoice_no = ?', [invoice_no], (err, results) => {
         if (err) return res.status(500).json(err);
@@ -34,8 +33,7 @@ invoiceService.get('/:invoice_no', (req, res) => {
     });
 });
 
-// Update an existing invoice
-invoiceService.put('/:invoice_no', (req, res) => {
+app.put('/:invoice_no', (req, res) => {
     const { invoice_no } = req.params;
     const { sales_name, metode_pembayaran, tanggal_pembayaran, status_pembayaran, tanggal_penagihan, customer, nominal, produk } = req.body;
     db.query(
@@ -48,8 +46,7 @@ invoiceService.put('/:invoice_no', (req, res) => {
     );
 });
 
-// Delete an invoice by invoice_no
-invoiceService.delete('/:invoice_no', (req, res) => {
+app.delete('/:invoice_no', (req, res) => {
     const { invoice_no } = req.params;
     db.query('DELETE FROM invoices WHERE invoice_no = ?', [invoice_no], (err, results) => {
         if (err) return res.status(500).json(err);

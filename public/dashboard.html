@@ -1,129 +1,711 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Dashboard Mikroservis</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #475569;
+            --accent: #3b82f6;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --danger: #ef4444;
+            --danger-dark: #dc2626;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --info: #0ea5e9;
+        }
+
+        * {
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
-        header {
-            background-color: #4285f4;
-            color: white;
-            padding: 10px;
-            text-align: center;
+
+        body {
+            background: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
+
+        .header {
+            background: var(--surface);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header-content {
+            max-width: 1440px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand h1 {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-role {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
         .container {
-            padding: 20px;
+            max-width: 1440px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            flex-grow: 1;
         }
+
+        .dashboard-header {
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title {
+            font-size: 1.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .stat-title {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .trend-up {
+            color: var(--success);
+        }
+
+        .trend-down {
+            color: var(--danger);
+        }
+
+        .services-grid {
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: auto auto;
+        }
+
         .service-card {
-            background: white;
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background: var(--surface);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.05);
         }
-        .service-card h3 {
-            margin: 0;
+
+        .service-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: var(--primary);
         }
-        .service-card p {
-            margin: 5px 0 15px;
-            color: #555;
+
+        .service-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
         }
-        .service-card button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
+
+        .service-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .service-icon .material-icons {
             color: white;
-            border: none;
-            border-radius: 4px;
+            font-size: 24px;
+        }
+
+        .service-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .service-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
             cursor: pointer;
+            font-size: 0.875rem;
+            border: none;
         }
-        .service-card button:hover {
-            background-color: #45a049;
-        }
-        #logoutButton {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #e74c3c;
+
+        .btn-primary {
+            background: var(--primary);
             color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
         }
-        #logoutButton:hover {
-            background-color: #c0392b;
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: var(--danger-dark);
+        }
+
+        .footer {
+            background: var(--surface);
+            padding: 1.5rem 2rem;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            margin-top: auto;
+        }
+
+        .footer-content {
+            max-width: 1440px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+
+        .footer-link:hover {
+            color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .header {
+                padding: 1rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .user-section {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .dashboard-title {
+                font-size: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .footer-links {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .brand h1 {
+                font-size: 1.25rem;
+            }
+
+            .service-card {
+                padding: 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background: var(--surface);
+            min-width: 200px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            z-index: 20;
+        }
+
+        .dropdown-content.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 0.375rem;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(0,0,0,0.05);
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Dashboard</h1>
-        <p>Selamat datang di sistem mikroservis</p>
+    <header class="header">
+        <div class="header-content">
+            <div class="brand">
+                <span class="material-icons" style="color: var(--primary); font-size: 32px;">business</span>
+                <h1>Aluglass Dashboard</h1>
+            </div>
+            <div class="user-section">
+                <div class="user-info">
+                    <div id="userName" class="user-name">Loading...</div>
+                    <div class="user-role">Administrator</div>
+                </div>
+                <div class="dropdown">
+                    <div class="avatar" id="userAvatar">A</div>
+                    <div class="dropdown-content" id="userDropdown">
+                        <a href="#" class="dropdown-item">
+                            <span class="material-icons">person</span>
+                            Profile
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <span class="material-icons">settings</span>
+                            Settings
+                        </a>
+                        <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 0.5rem 0;">
+                        <a href="#" class="dropdown-item" id="logoutButton">
+                            <span class="material-icons" style="color: var(--danger);">logout</span>
+                            <span style="color: var(--danger);">Logout</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </header>
+
     <div class="container">
-        <div class="service-card">
-            <h3>Inventory Management</h3>
-            <p>Mengelola inventory</p>
-            <button onclick="accessService('/inventory')"></a>Akses</button>
+        <div class="dashboard-header">
+            <h2 class="dashboard-title">Overview</h2>
+            <p class="dashboard-subtitle">Welcome back! Here's what's happening with your business today.</p>
         </div>
-        <div class="service-card">
-            <h3>Sales Order</h3>
-            <p>Mengelola penawaran dari sales</p>
-            <button onclick="accessService('/sales-order')">Akses</button>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-title">Total Orders</div>
+                <div class="stat-value">2,451</div>
+                <div class="stat-trend trend-up">
+                    <span class="material-icons">trending_up</span>
+                    <span>12.5% vs last month</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Total Revenue</div>
+                <div class="stat-value">Rp3,87 M</div>
+                <div class="stat-trend trend-up">
+                    <span class="material-icons">trending_up</span>
+                    <span>8.2% vs last month</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Active Orders</div>
+                <div class="stat-value">60</div>
+                <div class="stat-trend trend-down">
+                    <span class="material-icons">trending_down</span>
+                    <span>3.1% vs last month</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Pending Deliveries</div>
+                <div class="stat-value">28</div>
+                <div class="stat-trend trend-up">
+                    <span class="material-icons">trending_up</span>
+                    <span>5.3% vs last month</span>
+                </div>
+            </div>
         </div>
-        <div class="service-card">
-            <h3>Delivery Order</h3>
-            <p>Mengirim dan menerima notifikasi.</p>
-            <button onclick="accessService('/delivery-order')">Akses</button>
+
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">
+                        <span class="material-icons">inventory_2</span>
+                    </div>
+                    <h3 class="service-title">Inventory Management</h3>
+                </div>
+                <p class="service-description">Manage and track your inventory with real-time updates and advanced analytics.</p>
+                <button onclick="accessService('/inventory')" class="btn btn-primary">
+                    <span class="material-icons">arrow_forward</span>
+                    Access System
+                </button>
+            </div>
+
+            <div class="service-card flex">
+                <div class="service-header">
+                    <div class="service-icon">
+                        <span class="material-icons">shopping_cart</span>
+                    </div>
+                    <h3 class="service-title">Sales Order</h3>
+                </div>
+                <p class="service-description">Monitor and manage all sales orders from a centralized dashboard.</p>
+                <button onclick="accessService('/sales-order')" class="btn btn-primary">
+                    <span class="material-icons">arrow_forward</span>
+                    Access System
+                </button>
+            </div>
+
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">
+                        <span class="material-icons">local_shipping</span>
+                    </div>
+                    <h3 class="service-title">Delivery Order</h3>
+                </div>
+                <p class="service-description">Track deliveries and manage shipping operations efficiently.</p>
+                <button onclick="accessService('/delivery-order')" class="btn btn-primary">
+                    <span class="material-icons">arrow_forward</span>
+                    Access System
+                </button>
+            </div>
+
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">
+                        <span class="material-icons">receipt_long</span>
+                    </div>
+                    <h3 class="service-title">Invoice Management</h3>
+                </div>
+                <p class="service-description">Create and manage invoices with our integrated billing system.</p>
+                <button onclick="accessService('/invoice')" class="btn btn-primary">
+                    <span class="material-icons">arrow_forward</span>
+                    Access System
+                </button>
+            </div>
+
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">
+                        <span class="material-icons">inventory</span>
+                    </div>
+                    <h3 class="service-title">Shipments</h3>
+                </div>
+                <p class="service-description">Track and manage all shipments with real-time updates.</p>
+                <button onclick="accessService('/shipments')" class="btn btn-primary">
+                    <span class="material-icons">arrow_forward</span>
+                    Access System
+                </button>
+            </div>
         </div>
-        <button id="logoutButton">Logout</button>
     </div>
 
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#" class="footer-link">About</a>
+                <a href="#" class="footer-link">Support</a>
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Terms of Service</a>
+            </div>
+            <div style="color: var(--text-secondary); font-size: 0.875rem;">
+                © 2024 Aluglass. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
     <script>
-        // Fungsi untuk mengakses mikroservis
-        async function accessService(servicePath) {
-            const token = localStorage.getItem('authToken');
-
-            if (!token) {
-                alert('Anda perlu login!');
-                window.location.href = '/login.html'; // Redirect ke halaman login
-                return;
+        // Toggle user dropdown
+        const userAvatar = document.getElementById('userAvatar');
+        const userDropdown = document.getElementById('userDropdown');
+        
+        document.addEventListener('click', (event) => {
+            const isClickInside = userAvatar.contains(event.target) || userDropdown.contains(event.target);
+            
+            if (!isClickInside) {
+                userDropdown.classList.remove('show');
+            } else if (userAvatar.contains(event.target)) {
+                userDropdown.classList.toggle('show');
             }
+        });
 
+        // Service access handler with loading state
+        async function accessService(servicePath) {
+            const button = event.currentTarget;
+            const originalContent = button.innerHTML;
+            
             try {
+                button.innerHTML = `
+                    <span class="material-icons" style="animation: spin 1s linear infinite;">sync</span>
+                    Loading...
+                `;
+                button.disabled = true;
+
                 const response = await fetch(servicePath, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${token}`, // Kirim token dalam header
                         'Content-Type': 'application/json',
                     },
+                    credentials: 'include'
                 });
 
                 if (response.ok) {
-                    const data = await response.json(); // Ambil data dari mikroservis
-                    alert(`Respons dari ${servicePath}:\n` + JSON.stringify(data, null, 2));
-                } else if (response.status === 401 || response.status === 403) {
-                    alert('Token kedaluwarsa atau tidak valid. Silakan login kembali.');
-                    localStorage.removeItem('authToken');
-                    window.location.href = '/auth/login';
+                    window.location.href = servicePath;
+                } else if (response.status === 401) {
+                    showNotification('Session expired. Please login again.', 'error');
+                    setTimeout(() => {
+                        window.location.href = '/auth/login';
+                    }, 2000);
                 } else {
-                    alert(`Gagal mengakses ${servicePath}: ${response.status}`);
+                    throw new Error(`Failed to access service: ${response.status}`);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Gagal terhubung ke server.');
+                showNotification('Failed to access service. Please try again.', 'error');
+            } finally {
+                button.innerHTML = originalContent;
+                button.disabled = false;
             }
         }
 
-        // Fungsi logout
-        document.getElementById('logoutButton').addEventListener('click', () => {
-            localStorage.removeItem('authToken'); // Hapus token
-            alert('Anda telah logout.');
-            window.location.href = '/auth/login'; // Redirect ke halaman login
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.style.cssText = `
+                position: fixed;
+                top: 1rem;
+                right: 1rem;
+                padding: 1rem 1.5rem;
+                border-radius: 0.5rem;
+                background: var(--surface);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+
+            const icon = document.createElement('span');
+            icon.className = 'material-icons';
+            icon.style.color = type === 'error' ? 'var(--danger)' : 'var(--success)';
+            icon.textContent = type === 'error' ? 'error' : 'check_circle';
+
+            const text = document.createElement('span');
+            text.textContent = message;
+
+            notification.appendChild(icon);
+            notification.appendChild(text);
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Check authentication and get user info
+        async function checkAuth() {
+            try {
+                const response = await fetch('/auth/check-auth', {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.authenticated && data.user) {
+                        document.getElementById('userName').textContent = data.user.username;
+                        document.getElementById('userAvatar').textContent = data.user.username[0].toUpperCase();
+                    } else {
+                        window.location.href = '/auth/login';
+                    }
+                } else {
+                    throw new Error('Authentication check failed');
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = '/auth/login';
+            }
+        }
+
+        // Logout handler
+        document.getElementById('logoutButton').addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                const response = await fetch('/auth/logout', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        showNotification('Logged out successfully', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/auth/login';
+                        }, 1000);
+                    } else {
+                        throw new Error(data.message || 'Logout failed');
+                    }
+                } else {
+                    throw new Error('Failed to logout');
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                showNotification('Failed to logout. Please try again.', 'error');
+            }
+        });
+
+        // Add keyframe animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
         });
     </script>
 </body>

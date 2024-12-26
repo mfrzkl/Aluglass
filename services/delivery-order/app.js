@@ -1,6 +1,12 @@
 const express = require('express')
 const app = express();
 const db = require('../../db/connections');
+const cors = require('cors');
+
+app.use(cors({
+    origin: 'http://localhost:3000', // URL frontend Anda
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Metode yang diizinkan
+}));
 
 app.get('/', async (req, res) => {
     try {
@@ -47,5 +53,5 @@ app.delete('/:DO_NO', (req, res) => {
 // Jalankan server
 const PORT = process.env.PORT || 3003;
 app.listen(PORT, () => {
-    console.log(`Inventory service running on port ${PORT}`);
+    console.log(`DO service running on port ${PORT}`);
 });
