@@ -12,7 +12,6 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Metode yang diizinkan
 }));
 
-
 // Inventory Endpoints
 app.get('/', async (req, res) => {
     try {
@@ -24,10 +23,14 @@ app.get('/', async (req, res) => {
 });
 
 app.post('/', (req, res) => {
-    const { kode_produk, nama_produk, kategori, warna, ketebalan, dimensi, stok, harga_satuan } = req.body;
+    const {
+        kode_produk, nama_produk, kategori, warna,
+        ketebalan, panjang1, lebar1, panjang2, lebar2, stok, harga_satuan
+    } = req.body;
+
     db.query(
-        'INSERT INTO inventory (kode_produk, nama_produk, kategori, warna, ketebalan, dimensi, stok, harga_satuan) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        [kode_produk, nama_produk, kategori, warna, ketebalan, JSON.stringify(dimensi), stok, harga_satuan],
+        'INSERT INTO inventory (kode_produk, nama_produk, kategori, warna, ketebalan, panjang1, lebar1, panjang2, lebar2, stok, harga_satuan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [kode_produk, nama_produk, kategori, warna, ketebalan, panjang1, lebar1, panjang2 || null, lebar2 || null, stok, harga_satuan],
         (err, results) => {
             if (err) return res.status(500).json(err);
             res.json({ message: 'Inventory item created', id: results.insertId });
@@ -39,7 +42,6 @@ app.put('/:kode_produk', (req, res) => {
     const { kode_produk } = req.params;
     const { stok } = req.body;
 
-    // Validasi input untuk memastikan hanya 'stok' yang diterima
     if (!Object.keys(req.body).includes('stok') || Object.keys(req.body).length !== 1) {
         return res.status(400).json({ message: 'Hanya kolom stok yang dapat diubah!' });
     }

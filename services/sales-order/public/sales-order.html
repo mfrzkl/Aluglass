@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Order Management System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Sales Order Management</h1>
+            <p class="text-gray-600">Create and manage sales orders</p>
+        </header>
+
+        <!-- Add Sales Order Form -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">Create New Sales Order</h2>
+            <form id="salesOrderForm" class="space-y-6">
+                <!-- Basic Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Sales Order No</label>
+                        <input type="text" name="sales_order_no" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Tanggal Pesanan</label>
+                        <input type="date" name="tanggal_pesanan" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Pelanggan</label>
+                        <input type="text" name="pelanggan" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Status</label>
+                        <select name="status" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="pending">Pending</option>
+                            <option value="processing">Paid</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Products Section -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-medium">Products</h3>
+                    <div id="productsContainer">
+                        <!-- Product entries will be added here -->
+                    </div>
+                    <button type="button" onclick="addProductEntry()" class="text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-plus mr-2"></i>Add Product
+                    </button>
+                </div>
+
+                <!-- Total -->
+                <div class="border-t pt-4">
+                    <div class="text-right">
+                        <span class="text-lg font-semibold">Total: Rp. </span>
+                        <span id="grandTotal" class="text-lg font-semibold">0</span>
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" class="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        Create Sales Order
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sales Orders Table -->
+        <div class="bg-white rounded-lg shadow-md p-6 overflow-x-auto">
+            <h2 class="text-xl font-semibold mb-4">Sales Orders</h2>
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SO No</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelanggan</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Products</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">qty</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="salesOrderTableBody" class="bg-white divide-y divide-gray-200">
+                    <!-- Data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Add Modal for Single Order Print -->
+    <div id="printModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-3/4 shadow-lg rounded-md bg-white">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium">Sales Order Detail</h3>
+                <button onclick="closePrintModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="printModalContent"></div>
+            <div class="flex justify-end mt-4 space-x-4">
+                <button onclick="closePrintModal()" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
+                    Close
+                </button>
+                <button onclick="generatePDF()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                    Download PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3002';
+        const INVENTORY_API_URL = 'http://localhost:3001';
+        let inventoryProducts = [];
+
+        // Fetch inventory products
+        async function fetchInventory() {
+            try {
+                const response = await fetch(INVENTORY_API_URL);
+                inventoryProducts = await response.json();
+            } catch (error) {
+                console.error('Error fetching inventory:', error);
+                alert('Failed to load inventory data');
+            }
+        }
+
+        // Create a product entry row
+        function createProductEntry() {
+            const container = document.createElement('div');
+            container.className = 'grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg';
+            
+            container.innerHTML = `
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Product</label>
+                    <select required class="product-select mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="">Select Product</option>
+                        ${inventoryProducts.map(p => `
+                            <option value="${p.kode_produk}" 
+                                    data-price="${p.harga_satuan}"
+                                    data-name="${p.nama_produk}">
+                                ${p.nama_produk} (${p.kode_produk})
+                            </option>
+                        `).join('')}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Quantity</label>
+                    <input type="number" min="1" required class="qty-input mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Price/Unit</label>
+                    <input type="number" readonly class="price-display mt-1 block w-full rounded-md bg-gray-100 border-gray-300">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Subtotal</label>
+                    <input type="number" readonly class="subtotal-display mt-1 block w-full rounded-md bg-gray-100 border-gray-300">
+                    <button type="button" onclick="removeProductEntry(this)" class="mt-2 text-red-600 hover:text-red-800">
+                        <i class="fas fa-trash mr-2"></i>Remove
+                    </button>
+                </div>
+            `;
+
+            // Add event listeners
+            const productSelect = container.querySelector('.product-select');
+            const qtyInput = container.querySelector('.qty-input');
+            const priceDisplay = container.querySelector('.price-display');
+            const subtotalDisplay = container.querySelector('.subtotal-display');
+
+            productSelect.addEventListener('change', function() {
+                const selected = this.options[this.selectedIndex];
+                const price = selected.dataset.price || 0;
+                priceDisplay.value = price;
+                updateSubtotal(container);
+            });
+
+            qtyInput.addEventListener('input', () => updateSubtotal(container));
+
+            return container;
+        }
+
+        // Add a new product entry
+        function addProductEntry() {
+            const container = document.getElementById('productsContainer');
+            container.appendChild(createProductEntry());
+        }
+
+        // Remove a product entry
+        function removeProductEntry(button) {
+            const entry = button.closest('.grid');
+            entry.remove();
+            updateGrandTotal();
+        }
+
+        // Update subtotal for a product entry
+        function updateSubtotal(container) {
+            const qty = container.querySelector('.qty-input').value || 0;
+            const price = container.querySelector('.price-display').value || 0;
+            const subtotal = qty * price;
+            container.querySelector('.subtotal-display').value = subtotal;
+            updateGrandTotal();
+        }
+
+        // Update grand total
+        function updateGrandTotal() {
+            const subtotals = [...document.getElementsByClassName('subtotal-display')]
+                .map(input => Number(input.value) || 0);
+            const total = subtotals.reduce((sum, value) => sum + value, 0);
+            document.getElementById('grandTotal').textContent = total.toLocaleString();
+        }
+
+        // Handle form submission
+        document.getElementById('salesOrderForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const baseData = {
+                sales_order_no: formData.get('sales_order_no'),
+                tanggal_pesanan: formData.get('tanggal_pesanan'),
+                pelanggan: formData.get('pelanggan'),
+                status: formData.get('status'),
+                qty: formData.get('qty'),
+                total_harga: formData.get('total_harga')
+            };
+
+            // Collect products data
+            const products = [...document.getElementsByClassName('grid')]
+                .map(container => {
+                    const select = container.querySelector('.product-select');
+                    const qty = container.querySelector('.qty-input').value;
+                    if (select.value && qty) {
+                        return {
+                            kode_produk: select.value,
+                            nama_produk: select.options[select.selectedIndex].dataset.name,
+                            qty: Number(qty),
+                            harga_satuan: Number(container.querySelector('.price-display').value)
+                        };
+                    }
+                })
+                .filter(Boolean);
+
+            const total_harga = products.reduce((sum, p) => sum + (p.qty * p.harga_satuan), 0);
+
+            const orderData = {
+                ...baseData,
+                produk: products,
+                total_harga
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(orderData),
+                });
+
+                if (response.ok) {
+                    alert('Sales Order created successfully');
+                    e.target.reset();
+                    document.getElementById('productsContainer').innerHTML = '';
+                    fetchSalesOrders();
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Failed to create sales order');
+                }
+            } catch (error) {
+                console.error('Error creating sales order:', error);
+                alert('Failed to create sales order');
+            }
+        });
+
+        // Fetch and display sales orders
+        // Modify the fetchSalesOrders function to add print button
+        async function fetchSalesOrders() {
+            try {
+                const response = await fetch(API_URL);
+                const orders = await response.json();
+                const tableBody = document.getElementById('salesOrderTableBody');
+                tableBody.innerHTML = '';
+
+                orders.forEach(order => {
+                    const products = JSON.parse(order.produk);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <!-- ... previous columns ... -->
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <button onclick="updateOrderStatus('${order.sales_order_no}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteOrder('${order.sales_order_no}')" class="text-red-600 hover:text-red-900 mr-3">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button onclick="showPrintModal('${order.sales_order_no}')" class="text-green-600 hover:text-green-900">
+                                <i class="fas fa-print"></i>
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error fetching sales orders:', error);
+                alert('Failed to load sales orders');
+            }
+        }
+
+        // Function to show print modal for single order
+        async function showPrintModal(salesOrderNo) {
+            try {
+                const response = await fetch(`${API_URL}/${salesOrderNo}`);
+                const order = await response.json();
+                const products = JSON.parse(order.produk);
+
+                const modalContent = document.getElementById('printModalContent');
+                modalContent.innerHTML = `
+                    <div class="border-b pb-4 mb-4">
+                        <h4 class="text-lg font-bold mb-2">Sales Order: ${order.sales_order_no}</h4>
+                        <p class="text-gray-600">Date: ${new Date(order.tanggal_pesanan).toLocaleDateString()}</p>
+                        <p class="text-gray-600">Customer: ${order.pelanggan}</p>
+                        <p class="text-gray-600">Status: ${order.status}</p>
+                    </div>
+                    <div class="mb-4">
+                        <h5 class="font-bold mb-2">Products:</h5>
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-2 text-left">Product</th>
+                                    <th class="px-4 py-2 text-right">Quantity</th>
+                                    <th class="px-4 py-2 text-right">Price/Unit</th>
+                                    <th class="px-4 py-2 text-right">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${products.map(p => `
+                                    <tr>
+                                        <td class="px-4 py-2">${p.nama_produk}</td>
+                                        <td class="px-4 py-2 text-right">${p.qty}</td>
+                                        <td class="px-4 py-2 text-right">Rp. ${p.harga_satuan.toLocaleString()}</td>
+                                        <td class="px-4 py-2 text-right">Rp. ${(p.qty * p.harga_satuan).toLocaleString()}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="px-4 py-2 text-right font-bold">Total:</td>
+                                    <td class="px-4 py-2 text-right font-bold">Rp. ${order.qty.toLocaleString()}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="px-4 py-2 text-right font-bold">Total:</td>
+                                    <td class="px-4 py-2 text-right font-bold">Rp. ${order.total_harga.toLocaleString()}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                `;
+
+                document.getElementById('printModal').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error fetching order details:', error);
+                alert('Failed to load order details');
+            }
+        }
+
+        // Function to close print modal
+        function closePrintModal() {
+            document.getElementById('printModal').classList.add('hidden');
+        }
+
+        // Function to generate PDF from modal content
+        function generatePDF() {
+            const element = document.getElementById('printModalContent');
+            const opt = {
+                margin: 1,
+                filename: 'sales-order.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            html2pdf().from(element).set(opt).save();
+        }
+
+        // Function to print all orders
+        async function printAllOrders() {
+            try {
+                const response = await fetch(API_URL);
+                const orders = await response.json();
+                
+                const printContent = document.getElementById('printContent');
+                printContent.innerHTML = orders.map(order => {
+                    const products = JSON.parse(order.produk);
+                    return `
+                        <div class="mb-8 pb-8 border-b">
+                            <h2 class="text-xl font-bold mb-4">Order: ${order.sales_order_no}</h2>
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <p><strong>Date:</strong> ${new Date(order.tanggal_pesanan).toLocaleDateString()}</p>
+                                    <p><strong>Customer:</strong> ${order.pelanggan}</p>
+                                </div>
+                                <div>
+                                    <p><strong>Status:</strong> ${order.status}</p>
+                                    <p><strong>Total:</strong> Rp. ${order.total_harga.toLocaleString()}</p>
+                                </div>
+                            </div>
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr>
+                                        <th class="px-4 py-2 text-left">Product</th>
+                                        <th class="px-4 py-2 text-right">Quantity</th>
+                                        <th class="px-4 py-2 text-right">Price/Unit</th>
+                                        <th class="px-4 py-2 text-right">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${products.map(p => `
+                                        <tr>
+                                            <td class="px-4 py-2">${p.nama_produk}</td>
+                                            <td class="px-4 py-2 text-right">${p.qty}</td>
+                                            <td class="px-4 py-2 text-right">Rp. ${p.harga_satuan.toLocaleString()}</td>
+                                            <td class="px-4 py-2 text-right">Rp. ${(p.qty * p.harga_satuan).toLocaleString()}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }).join('');
+
+                document.getElementById('printDate').textContent = new Date().toLocaleString();
+
+                const element = document.getElementById('printTemplate');
+                const opt = {
+                    margin: 1,
+                    filename: 'all-sales-orders.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
+
+                html2pdf().from(element).set(opt).save();
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                alert('Failed to generate PDF');
+            }
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'pending': 'bg-yellow-100 text-yellow-800',
+                'processing': 'bg-blue-100 text-blue-800',
+                'completed': 'bg-green-100 text-green-800',
+                'cancelled': 'bg-red-100 text-red-800'
+            };
+            return colors[status] || 'bg-gray-100 text-gray-800';
+        }
+
+        // Delete order
+        async function deleteOrder(salesOrderNo) {
+            if (!confirm('Are you sure you want to delete this sales order?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/${salesOrderNo}`, {
+                    method: 'DELETE',
+                });
+
+                if (response.ok) {
+                    alert('Sales order deleted successfully');
+                    fetchSalesOrders();
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Failed to delete sales order');
+                }
+            } catch (error) {
+                console.error('Error deleting sales order:', error);
+                alert('Failed to delete sales order');
+            }
+        }
+
+        // Update order status
+        async function updateOrderStatus(salesOrderNo) {
+            const newStatus = prompt('Enter new status (pending/processing/completed/cancelled):');
+            if (!newStatus) return;
+
+            const validStatuses = ['pending', 'processing', 'completed', 'cancelled'];
+            if (!validStatuses.includes(newStatus.toLowerCase())) {
+                alert('Invalid status. Please enter a valid status.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/${salesOrderNo}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status: newStatus.toLowerCase() }),
+                });
+
+                if (response.ok) {
+                    alert('Status updated successfully');
+                    fetchSalesOrders();
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Failed to update status');
+                }
+            } catch (error) {
+                console.error('Error updating status:', error);
+                alert('Failed to update status');
+            }
+        }
+
+        // Initialize the page
+        async function initialize() {
+            await fetchInventory();
+            await fetchSalesOrders();
+            addProductEntry(); // Add first product entry by default
+        }
+
+        // Start the application
+        initialize();
+    </script>
+</body>
+</html>

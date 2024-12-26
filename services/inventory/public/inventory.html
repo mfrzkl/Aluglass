@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Inventory Management System</h1>
+            <p class="text-gray-600">Manage your product inventory efficiently</p>
+        </header>
+
+        <!-- Add Product Form -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">Add New Product</h2>
+            <form id="addProductForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Kode Produk</label>
+                    <input type="text" name="kode_produk" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Nama Produk</label>
+                    <input type="text" name="nama_produk" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Kategori</label>
+                    <input type="text" name="kategori" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Warna</label>
+                    <input type="text" name="warna" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Ketebalan</label>
+                    <input type="number" name="ketebalan" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Panjang 1</label>
+                    <input type="number" name="panjang1" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Lebar 1</label>
+                    <input type="number" name="lebar1" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Panjang 2</label>
+                    <input type="number" name="panjang2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Lebar 2</label>
+                    <input type="number" name="lebar2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Stok</label>
+                    <input type="number" name="stok" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Harga Satuan</label>
+                    <input type="number" name="harga_satuan" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div class="md:col-span-2 lg:col-span-3">
+                    <button type="submit" class="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        Add Product
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Inventory Table -->
+        <div class="bg-white rounded-lg shadow-md p-6 overflow-x-auto">
+            <h2 class="text-xl font-semibold mb-4">Current Inventory</h2>
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode Produk</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Produk</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Warna</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ketebalan (mm)</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">panjang 1 (mm)</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">lebar 1 (mm)</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">panjang 2 (mm)</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">lebar 2 (mm)</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stok</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryTableBody" class="bg-white divide-y divide-gray-200">
+                    <!-- Data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Edit Stock Modal -->
+    <div id="editStockModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Update Stock</h3>
+            <form id="editStockForm">
+                <input type="hidden" id="editProductCode">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700">New Stock Amount</label>
+                    <input type="number" id="editStockAmount" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div class="flex justify-end gap-4">
+                    <button type="button" onclick="closeEditModal()" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
+                        Cancel
+                    </button>
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                        Update
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3001';
+
+        // Fetch and display inventory
+        async function fetchInventory() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                const tableBody = document.getElementById('inventoryTableBody');
+                tableBody.innerHTML = '';
+
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">${item.kode_produk}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${item.nama_produk}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${item.kategori}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${item.warna}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${item.ketebalan}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${item.panjang1}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${item.lebar1}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${item.panjang2}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${item.lebar2}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${item.stok}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <button onclick="openEditModal('${item.kode_produk}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteProduct('${item.kode_produk}')" class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error fetching inventory:', error);
+                alert('Failed to load inventory data');
+            }
+        }
+
+        // Add new product
+        document.getElementById('addProductForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const product = Object.fromEntries(formData.entries());
+
+            // Convert numeric fields
+            ['ketebalan', 'panjang1', 'lebar1', 'panjang2', 'lebar2', 'stok', 'harga_satuan'].forEach(field => {
+                if (product[field]) {
+                    product[field] = Number(product[field]);
+                }
+            });
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(product),
+                });
+
+                if (response.ok) {
+                    alert('Product added successfully');
+                    e.target.reset();
+                    fetchInventory();
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Failed to add product');
+                }
+            } catch (error) {
+                console.error('Error adding product:', error);
+                alert('Failed to add product');
+            }
+        });
+
+        // Edit stock modal functions
+        function openEditModal(kodeProduk) {
+            document.getElementById('editProductCode').value = kodeProduk;
+            document.getElementById('editStockModal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editStockModal').classList.add('hidden');
+        }
+
+        // Update stock
+        document.getElementById('editStockForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const kodeProduk = document.getElementById('editProductCode').value;
+            const stok = Number(document.getElementById('editStockAmount').value);
+
+            try {
+                const response = await fetch(`${API_URL}/${kodeProduk}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ stok }),
+                });
+
+                if (response.ok) {
+                    alert('Stock updated successfully');
+                    closeEditModal();
+                    fetchInventory();
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Failed to update stock');
+                }
+            } catch (error) {
+                console.error('Error updating stock:', error);
+                alert('Failed to update stock');
+            }
+        });
+
+        // Delete product
+        async function deleteProduct(kodeProduk) {
+            if (!confirm('Are you sure you want to delete this product?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/${kodeProduk}`, {
+                    method: 'DELETE',
+                });
+
+                if (response.ok) {
+                    alert('Product deleted successfully');
+                    fetchInventory();
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Failed to delete product');
+                }
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                alert('Failed to delete product');
+            }
+        }
+
+        // Initial load
+        fetchInventory();
+    </script>
+</body>
+</html>

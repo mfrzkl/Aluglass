@@ -1,6 +1,13 @@
 const express = require('express');
 const app = express();
 const db = require('../../db/connections');
+app.use(express.json());
+const cors = require('cors');
+
+app.use(cors({
+    origin: 'http://localhost:3000', // URL frontend Anda
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Metode yang diizinkan
+}));
 
 app.get('/', async (req, res) => {
     try {
@@ -12,10 +19,10 @@ app.get('/', async (req, res) => {
 });
 
 app.post('/', (req, res) => {
-    const { sales_order_no, tanggal_pesanan, pelanggan, status, produk, total_harga } = req.body;
+    const { sales_order_no, tanggal_pesanan, pelanggan, status, produk, qty, total_harga } = req.body;
     db.query(
-        'INSERT INTO sales_order (sales_order_no, tanggal_pesanan, pelanggan, status, produk, total_harga) VALUES (?, ?, ?, ?, ?, ?)',
-        [sales_order_no, tanggal_pesanan, pelanggan, status, JSON.stringify(produk), total_harga],
+        'INSERT INTO sales_order (sales_order_no, tanggal_pesanan, pelanggan, status, produk, qty, total_harga) VALUES (?, ?, ?, ?, ?, ?)',
+        [sales_order_no, tanggal_pesanan, pelanggan, status, JSON.stringify(produk), qty, total_harga],
         (err, results) => {
             if (err) return res.status(500).json(err);
             res.json({ message: 'Sales Order dibuat', id: results.insertId });
@@ -68,5 +75,5 @@ app.delete('/:sales_order_no', (req, res) => {
 // Jalankan server
 const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
-    console.log(`Inventory service running on port ${PORT}`);
+    console.log(`SO service running on port ${PORT}`);
 });
